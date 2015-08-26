@@ -139,15 +139,13 @@ func Test_Transform(t *testing.T) {
 		fn(conf)
 
 		g.It("Should modify entrypoint", func() {
-			g.Assert(conf.Build.Entrypoint).Equal([]string{"/bin/sh"})
+			g.Assert(conf.Build.Entrypoint).Equal([]string{"/bin/sh", "-e", "-c"})
 		})
 
 		g.It("Should modify embed base64 command", func() {
 			cmd := base64.StdEncoding.EncodeToString([]byte(setupScript))
 			cmd = fmt.Sprintf("echo %s | base64 -d | $SHELL", cmd)
-			g.Assert(conf.Build.Command[0]).Equal("-e")
-			g.Assert(conf.Build.Command[1]).Equal("-c")
-			g.Assert(conf.Build.Command[2]).Equal(cmd)
+			g.Assert(conf.Build.Command).Equal([]string{cmd})
 		})
 	})
 }

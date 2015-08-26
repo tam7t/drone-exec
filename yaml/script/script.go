@@ -22,8 +22,8 @@ func Transform(funcs []WriterFunc) TransformFunc {
 	return func(conf *yaml.Config) {
 		var buf bytes.Buffer
 		WriteAll(&buf, funcs)
-		conf.Build.Entrypoint = []string{"/bin/sh"}
-		conf.Build.Command = []string{"-e", "-c", wrapCommand(buf.Bytes())}
+		conf.Build.Entrypoint = []string{"/bin/sh", "-e", "-c"}
+		conf.Build.Command = []string{wrapCommand(buf.Bytes())}
 	}
 }
 
