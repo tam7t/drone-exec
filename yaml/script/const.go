@@ -1,0 +1,56 @@
+package script
+
+// setupScript is a helper script this is added
+// to the build to ensure a minimum set of environment
+// variables are set correctly.
+const setupScript = `
+[ -z "$HOME"  ] && export HOME="/root"
+[ -z "$SHELL" ] && export SHELL="/bin/sh"
+`
+
+const teardownScript = `
+rm -rf $HOME/.netrc
+rm -rf $HOME/.ssh/id_rsa
+`
+
+// netrcScript is a helper script that is added to
+// the build script to enable cloning private git
+// repositories of http.
+const netrcScript = `
+cat <<EOF > $HOME/.netrc
+machine %s
+login %s
+password %s
+EOF
+chmod 0600 $HOME/.netrc
+`
+
+// keyScript is a helper script that is added to
+// the build script to add the id_rsa key to clone
+// private repositories.
+const keyScript = `
+mkdir -p $HOME/.ssh
+cat <<EOF > $HOME/.ssh/id_rsa
+%s
+EOF
+chmod 0700 $HOME/.ssh
+`
+
+// keyConfScript is a helper function that is added
+// to the build script to ensure that git clones don't
+// fail due to strict host key checking prompt.
+const keyConfScript = `
+cat <<EOF > $HOME/.ssh/config
+StrictHostKeyChecking no
+EOF
+`
+
+// forceYesScript is a helper function that is added
+// to the build script to ensure apt-get installs
+// don't prompt the user to accept changes.
+const forceYesScript = `
+mkdir -p /etc/apt/apt.conf.d
+cat <<EOF > /etc/apt/apt.conf.d/90forceyes
+APT::Get::Assume-Yes "true";APT::Get::force-yes "true";
+EOF
+`
