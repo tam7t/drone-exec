@@ -107,5 +107,6 @@ func (c *When) MatchMatrix(matrix map[string]string) bool {
 // container. This helps the plugin understand locate
 // the source code directory.
 type Workspace struct {
-	Path string
+	Path  string
+	Cache []string
 }

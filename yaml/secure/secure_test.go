@@ -42,7 +42,15 @@ func Test_Secure(t *testing.T) {
 
 var fakeYaml = `
 secure:
-  - eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkExMjhHQ00ifQ.uIzYaVxMFCTCWRBsfWgXvltQ3Sg9uOFV4fNl3ZxlKw6IEXYzDj9ell2YAXiBGgbCPMU9eBW5wdP4nYbdrCe6J1zCmQY5GCz_mc1Z7ccH3ImljoPEv22EDCJLZRptPzukTFg5tepV0Lu1d0DyUHOrbkeDUkVNxQYjxHPaRbiFIXeeKV7oqxO1biQ81ksU6ZrVQ0lIJRMd8MGyEwhsQfWRA3mzd3s6vH39wG-pxwSfiaWwHRxCLOdkep4qd_4W452SNR1087c_PbajCoK8jruln2eP3Ftt7Q0l_qnh3cds7Jmjj3qUNo035ItfTqDiYZc3ALYwHnAMx389g1Cz4L7VCA.cgu32y0qS7HjDexX.ZGxvF0mZnvlnWBOF_Zg.1dFn4-Fg9Zw7mv1RomKm6A
+  - >
+    eyJhbGciOiJSU0EtT0FFUCIsImVuYyI6IkExMjhHQ00ifQ.uIzYaVxMFCTC
+    WRBsfWgXvltQ3Sg9uOFV4fNl3ZxlKw6IEXYzDj9ell2YAXiBGgbCPMU9eBW
+    5wdP4nYbdrCe6J1zCmQY5GCz_mc1Z7ccH3ImljoPEv22EDCJLZRptPzukTF
+    g5tepV0Lu1d0DyUHOrbkeDUkVNxQYjxHPaRbiFIXeeKV7oqxO1biQ81ksU6
+    ZrVQ0lIJRMd8MGyEwhsQfWRA3mzd3s6vH39wG-pxwSfiaWwHRxCLOdkep4q
+    d_4W452SNR1087c_PbajCoK8jruln2eP3Ftt7Q0l_qnh3cds7Jmjj3qUNo0
+    35ItfTqDiYZc3ALYwHnAMx389g1Cz4L7VCA.cgu32y0qS7HjDexX.ZGxvF0
+    mZnvlnWBOF_Zg.1dFn4-Fg9Zw7mv1RomKm6A
 `
 
 var fakePriv = `
