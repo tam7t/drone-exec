@@ -7,23 +7,24 @@ import (
 	"github.com/drone/drone-exec/yaml"
 )
 
-// TransformFunc represents a transform function used when
+// RuleFunc represents a transformation rule used when
 // parsing the yaml file and setting default values and state.
-type TransformFunc func(conf *yaml.Config)
+type RuleFunc func(conf *yaml.Config) error
 
 // WriterFunc represents a transform function used to
 // transform the the yaml file into a build script.
 type WriterFunc func(io.Writer)
 
-// Transform returns a yaml transform function responsible for
+// Rule returns a yaml rule function responsible for
 // executing a set of build transforms, altering the Build step
 // to run the build script in the entrypoint.
-func Transform(funcs []WriterFunc) TransformFunc {
-	return func(conf *yaml.Config) {
+func Rule(funcs []WriterFunc) RuleFunc {
+	return func(conf *yaml.Config) error {
 		var buf bytes.Buffer
 		WriteAll(&buf, funcs)
 		conf.Build.Entrypoint = []string{"/bin/sh", "-e", "-c"}
 		conf.Build.Command = []string{wrapCommand(buf.Bytes())}
+		return nil
 	}
 }
 

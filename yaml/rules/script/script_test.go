@@ -124,7 +124,7 @@ func Test_Writer(t *testing.T) {
 	})
 }
 
-func Test_Transform(t *testing.T) {
+func Test_Rule(t *testing.T) {
 
 	g := goblin.Goblin(t)
 	g.Describe("Script transform", func() {
@@ -135,7 +135,7 @@ func Test_Transform(t *testing.T) {
 		var funcs []WriterFunc
 		funcs = append(funcs, WriteSetup())
 
-		fn := Transform(funcs)
+		fn := Rule(funcs)
 		fn(conf)
 
 		g.It("Should modify entrypoint", func() {

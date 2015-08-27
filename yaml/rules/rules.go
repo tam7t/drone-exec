@@ -16,9 +16,9 @@ const DefaultCacher = "plugins/drone-cache"
 // Default plugin whitelist match string.
 const DefaultMatch = "plugins/*"
 
-// prepareClone prepares the clone object. It applies
+// PrepareClone prepares the clone object. It applies
 // default settings if none exist.
-func prepareClone(c *yaml.Config) error {
+func PrepareClone(c *yaml.Config) error {
 	if c.Clone == nil {
 		c.Clone = &yaml.Step{}
 	}
@@ -29,9 +29,9 @@ func prepareClone(c *yaml.Config) error {
 	return nil
 }
 
-// prepareCache prepares the cache object. It applies
+// PrepareCache prepares the cache object. It applies
 // default settings if none exist.
-func prepareCache(c *yaml.Config, name string) error {
+func PrepareCache(c *yaml.Config, name string) error {
 	if c.Cache == nil {
 		return nil
 	}
@@ -45,8 +45,14 @@ func prepareCache(c *yaml.Config, name string) error {
 	return nil
 }
 
-// prepareImages prepares all images names.
-func prepareImages(c *yaml.Config) error {
+func PrepareCacheRule(name string) RuleFunc {
+	return func(c *yaml.Config) error {
+		return PrepareCache(c, name)
+	}
+}
+
+// PrepareImages prepares all images names.
+func PrepareImages(c *yaml.Config) error {
 	return forEachStep(c, func(s *yaml.Step) error {
 		if len(s.Image) == 0 {
 			return nil
@@ -59,9 +65,9 @@ func prepareImages(c *yaml.Config) error {
 	})
 }
 
-// verifyCache verifies the cache section of the yaml
+// VerifyCache verifies the cache section of the yaml
 // is setup correctly.
-func verifyCache(c *yaml.Config) error {
+func VerifyCache(c *yaml.Config) error {
 	if c.Cache == nil {
 		return nil
 	}
@@ -79,9 +85,9 @@ func verifyCache(c *yaml.Config) error {
 	return nil
 }
 
-// verifyBuild verifies the build section of the yaml
+// VerifyBuild verifies the build section of the yaml
 // is present and has a valid image name.
-func verifyBuild(c *yaml.Config) error {
+func VerifyBuild(c *yaml.Config) error {
 	if c.Build == nil {
 		return fmt.Errorf("Yaml must define a build section")
 	}
@@ -94,9 +100,9 @@ func verifyBuild(c *yaml.Config) error {
 	return nil
 }
 
-// verifyPlugins verifies the plugins are part of the
+// VerifyPlugins verifies the plugins are part of the
 // plugin white-list.
-func verifyPlugins(c *yaml.Config, match string) error {
+func VerifyPlugins(c *yaml.Config, match string) error {
 	// always use the default plugin filter if no
 	// matching string is provided. Safety first!
 	if len(match) == 0 {
@@ -124,9 +130,15 @@ func verifyPlugins(c *yaml.Config, match string) error {
 	})
 }
 
-// verifyPlugins verifies all build steps have associated
+func VerifyPluginsRule(match string) RuleFunc {
+	return func(c *yaml.Config) error {
+		return VerifyPlugins(c, match)
+	}
+}
+
+// VerifyImages verifies all build steps have associated
 // docker images defined.
-func verifyImages(c *yaml.Config) error {
+func VerifyImages(c *yaml.Config) error {
 	return forEachStep(c, func(s *yaml.Step) error {
 		if len(s.Image) != 0 {
 			return nil
@@ -135,9 +147,9 @@ func verifyImages(c *yaml.Config) error {
 	})
 }
 
-// cleanVolumes is a rule that ensures every
+// CleanVolumes is a rule that ensures every
 // step is executed without volumes.
-func cleanVolumes(c *yaml.Config) error {
+func CleanVolumes(c *yaml.Config) error {
 	return forEachStep(c, func(s *yaml.Step) error {
 		if s == c.Cache {
 			// the cache plugins volumes were already
@@ -149,18 +161,18 @@ func cleanVolumes(c *yaml.Config) error {
 	})
 }
 
-// cleanNetwork is a transformer that ensures every
+// CleanNetwork is a transformer that ensures every
 // step is executed with default bridge networking.
-func cleanNetwork(c *yaml.Config) error {
+func CleanNetwork(c *yaml.Config) error {
 	return forEachStep(c, func(s *yaml.Step) error {
 		s.NetworkMode = ""
 		return nil
 	})
 }
 
-// cleanPrivileged is a transformer that ensures every
+// CleanPrivileged is a transformer that ensures every
 // step is executed in non-privileged mode.
-func cleanPrivileged(c *yaml.Config) error {
+func CleanPrivileged(c *yaml.Config) error {
 	forEachStep(c, func(s *yaml.Step) error {
 		s.Privileged = false
 		return nil
