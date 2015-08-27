@@ -7,7 +7,7 @@ import (
 
 // Config represents a repository build configuration.
 type Config struct {
-	Setup *Step
+	Cache *Step
 	Clone *Step
 	Build *Step
 
@@ -29,7 +29,6 @@ type Step struct {
 	Entrypoint  []string
 	Command     []string
 	Volumes     []string
-	Cache       []string
 	WorkingDir  string `yaml:"working_dir"`
 	NetworkMode string `yaml:"net"`
 
