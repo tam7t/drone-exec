@@ -38,12 +38,13 @@ func Test_InjectSafe(t *testing.T) {
 	g := goblin.Goblin(t)
 	g.Describe("Safely Inject params", func() {
 
-		m := map[string]string{}
-		m["TOKEN"] = "FOO"
-		m["SECRET"] = "BAR"
-		safe := InjectSafe(before, m)
-		g.Assert(strings.Trim(after, "\n")).Equal(strings.Trim(safe, "\n"))
-
+		g.It("Should only replace vars in plugin secionts", func() {
+			m := map[string]string{}
+			m["TOKEN"] = "FOO"
+			m["SECRET"] = "BAR"
+			safe := InjectSafe(before, m)
+			g.Assert(strings.Trim(after, "\n")).Equal(strings.Trim(safe, "\n"))
+		})
 	})
 }
 
@@ -60,7 +61,7 @@ deploy:
 `
 
 var after = `
-setup: {}
+cache: {}
 clone: {}
 build:
   image: foo
@@ -74,5 +75,4 @@ deploy:
     token: FOO
     secret: BAR
 notify: {}
-workspace: {}
 `

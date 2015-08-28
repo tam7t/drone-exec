@@ -53,7 +53,7 @@ func parse(raw string) (*config, error) {
 }
 
 type config struct {
-	Setup yaml.MapSlice
+	Cache yaml.MapSlice
 	Clone yaml.MapSlice
 	Build yaml.MapSlice
 
@@ -61,6 +61,4 @@ type config struct {
 	Publish yaml.MapSlice
 	Deploy  yaml.MapSlice
 	Notify  yaml.MapSlice
-
-	Workspace yaml.MapSlice
 }
