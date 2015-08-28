@@ -135,7 +135,7 @@ func Test_Rule(t *testing.T) {
 		var funcs []WriterFunc
 		funcs = append(funcs, WriteSetup())
 
-		fn := Rule(funcs)
+		fn := RuleFunc(funcs)
 		fn(conf)
 
 		g.It("Should modify entrypoint", func() {

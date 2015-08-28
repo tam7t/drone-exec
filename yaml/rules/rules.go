@@ -16,6 +16,10 @@ const DefaultCacher = "plugins/drone-cache"
 // Default plugin whitelist match string.
 const DefaultMatch = "plugins/*"
 
+// RuleFunc to extend yaml parsing to validate and
+// transform the results.
+type RuleFunc func(*yaml.Config) error
+
 // PrepareClone prepares the clone object. It applies
 // default settings if none exist.
 func PrepareClone(c *yaml.Config) error {
@@ -45,6 +49,8 @@ func PrepareCache(c *yaml.Config, name string) error {
 	return nil
 }
 
+// PrepareCacheRule is an adapter function that allows
+// PrepareCache to be executed as a RuleFunc.
 func PrepareCacheRule(name string) RuleFunc {
 	return func(c *yaml.Config) error {
 		return PrepareCache(c, name)
@@ -65,9 +71,27 @@ func PrepareImages(c *yaml.Config) error {
 	})
 }
 
-// VerifyCache verifies the cache section of the yaml
+// PrepareEnv prepares the default environment variables
+// fo for the build image.
+func PrepareEnv(c *yaml.Config, envs []string) error {
+	if c.Build == nil {
+		return nil
+	}
+	c.Build.Environment = append(c.Build.Environment, envs...)
+	return nil
+}
+
+// PrepareEnvRule is an adapter function that allows
+// PrepareEnv to be executed as a RuleFunc.
+func PrepareEnvRule(envs []string) RuleFunc {
+	return func(c *yaml.Config) error {
+		return PrepareEnv(c, envs)
+	}
+}
+
+// LintCache verifies the cache section of the yaml
 // is setup correctly.
-func VerifyCache(c *yaml.Config) error {
+func LintCache(c *yaml.Config) error {
 	if c.Cache == nil {
 		return nil
 	}
@@ -85,9 +109,9 @@ func VerifyCache(c *yaml.Config) error {
 	return nil
 }
 
-// VerifyBuild verifies the build section of the yaml
+// LintBuild verifies the build section of the yaml
 // is present and has a valid image name.
-func VerifyBuild(c *yaml.Config) error {
+func LintBuild(c *yaml.Config) error {
 	if c.Build == nil {
 		return fmt.Errorf("Yaml must define a build section")
 	}
@@ -100,13 +124,13 @@ func VerifyBuild(c *yaml.Config) error {
 	return nil
 }
 
-// VerifyPlugins verifies the plugins are part of the
+// LintPlugins verifies the plugins are part of the
 // plugin white-list.
-func VerifyPlugins(c *yaml.Config, match string) error {
+func LintPlugins(c *yaml.Config, patterns []string) error {
 	// always use the default plugin filter if no
 	// matching string is provided. Safety first!
-	if len(match) == 0 {
-		match = DefaultMatch
+	if len(patterns) == 0 {
+		patterns = []string{DefaultMatch}
 	}
 
 	return forEachStep(c, func(s *yaml.Step) error {
@@ -116,29 +140,36 @@ func VerifyPlugins(c *yaml.Config, match string) error {
 			return nil
 		}
 
-		// verify the user specified the plugin image.
-		if len(s.Image) == 0 {
-			return fmt.Errorf("Yaml must define plugin images")
+		match := false
+		for _, pattern := range patterns {
+			if pattern == s.Image {
+				match = true
+				break
+			}
+			ok, err := filepath.Match(pattern, s.Image)
+			if ok && err == nil {
+				match = true
+				break
+			}
 		}
-
-		// uses filepath globbing for plugin matching
-		ok, _ := filepath.Match(match, s.Image)
-		if ok {
-			return nil
+		if !match {
+			return fmt.Errorf("Yaml cannot use un-trusted image %s", s.Image)
 		}
-		return fmt.Errorf("Yaml image %s is forbidden", s.Image)
+		return nil
 	})
 }
 
-func VerifyPluginsRule(match string) RuleFunc {
+// LintPluginsRule is an adapter function that allows
+// LintPlugins to be executed as a RuleFunc.
+func LintPluginsRule(patterns []string) RuleFunc {
 	return func(c *yaml.Config) error {
-		return VerifyPlugins(c, match)
+		return LintPlugins(c, patterns)
 	}
 }
 
-// VerifyImages verifies all build steps have associated
+// LintImages verifies all build steps have associated
 // docker images defined.
-func VerifyImages(c *yaml.Config) error {
+func LintImages(c *yaml.Config) error {
 	return forEachStep(c, func(s *yaml.Step) error {
 		if len(s.Image) != 0 {
 			return nil
@@ -173,17 +204,22 @@ func CleanNetwork(c *yaml.Config) error {
 // CleanPrivileged is a transformer that ensures every
 // step is executed in non-privileged mode.
 func CleanPrivileged(c *yaml.Config) error {
-	forEachStep(c, func(s *yaml.Step) error {
+	return forEachStep(c, func(s *yaml.Step) error {
 		s.Privileged = false
 		return nil
 	})
+}
 
-	// the only white-listed plugin that can
-	// run in privileged mode is the `drone-docker`
-	// plugin.
+// EnableDocker is a transformer that ensures the Docker
+// plugin is executed in privileged mode.
+func EnableDocker(c *yaml.Config) error {
 	for _, step := range c.Publish {
 		if step.Image == "plugins/drone-docker" {
 			step.Privileged = true
+
+			// since we are running in privileged mode
+			// we make sure there are no volumes, host network
+			// or anything else that could be exploited
 			step.Volumes = nil
 			step.NetworkMode = ""
 			step.Entrypoint = []string{}
