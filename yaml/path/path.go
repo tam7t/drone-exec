@@ -13,10 +13,10 @@ import (
 // directory or one of its childen.
 const DefaultRoot = "/drone/src"
 
-// Yaml represents a simple Yaml file with the clone
+// config represents a simple Yaml config file with the clone
 // section and the path attribute. This is used to quickly
 // extract only the path.
-type Yaml struct {
+type config struct {
 	Clone struct {
 		Path string
 	}
@@ -26,7 +26,7 @@ type Yaml struct {
 // workspace path. If empty, the default uri is
 // used to determine the workspace.
 func Parse(raw, rawurl string) string {
-	data := Yaml{}
+	data := config{}
 	path := FromUrl(rawurl)
 
 	// unarmshal into the temporary Yaml object
