@@ -16,26 +16,28 @@ go test ./...
 You can run the program locally for testing purposes. The build details are provided to the program via a JSON payload as seen below:
 
 ```
-./drone-exec --clone --build <<EOF
+./drone-exec --debug --setup --build <<EOF
 {
 	"system": {},
 	"workspace": {},
 	"repo": {
-		"owner": "drone",
-		"name": "drone",
-		"full_name": "drone/drone",
-		"link_url": "https://github.com/drone/drone",
-		"clone_url": "https://github.com/drone/drone.git"
+		"owner": "garyburd",
+		"name": "redigo",
+		"full_name": "garyburd/redigo",
+		"link_url": "https://github.com/garyburd/redigo",
+		"clone_url": "git://github.com/garyburd/redigo.git"
 	},
 	"build": {
 		"head_commit": {
+			"ref": "refs/heads/master",
+			"sha": "d8dbe4d94f15fe89232e0402c6e8a0ddf21af3ab",
 			"branch": "master"
 		}
 	},
 	"job": {
 		"environment": {}
 	},
-	"yaml": "{build: { image: golang, commands: [ go build, go test ] }, deploy: { heroku: { app: foo} }}"
+	"yaml": "{ build: { image: 'golang:1.4.2', environment: ['GOPATH=/drone'], commands: ['cd redis', 'go build', 'go test -v']}, compose: { redis: { image: 'redis:2.8' } } }"
 }
 EOF
 ```

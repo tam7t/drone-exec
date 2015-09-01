@@ -38,6 +38,10 @@ func Parse(raw, rawurl string) string {
 		path = data.Clone.Path
 	}
 
+	if filepath.HasPrefix(path, DefaultRoot) {
+		return path
+	}
+
 	// otherwise return the clone path, joined with the
 	// root workspace. Note that this means the clone
 	// path must be a relative path.

@@ -3,7 +3,7 @@ package docker
 import (
 	"errors"
 	"os"
-	"strings"
+	// "strings"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/samalba/dockerclient"
@@ -32,48 +32,18 @@ var (
 
 func Run(client dockerclient.Client, conf *dockerclient.ContainerConfig, pull bool) (*dockerclient.ContainerInfo, error) {
 
-	// force-pull the image if specified.
-	// TEMPORARY: always try to pull the new image for now
-	// since we'll be frequently updating the plugin images
-	// over the next few weeks
-	if pull || strings.HasPrefix(conf.Image, "plugins/") {
-		client.PullImage(conf.Image, nil)
-	}
-
-	// attempts to create the contianer
-	id, err := client.CreateContainer(conf, "")
+	// fetches the container information.
+	info, err := Start(client, conf, pull)
 	if err != nil {
-		// and pull the image and re-create if that fails
-		err = client.PullImage(conf.Image, nil)
-		if err != nil {
-			log.Errorf("Error pulling %s. %s\n", conf.Image, err)
-			return nil, err
-		}
-
-		id, err = client.CreateContainer(conf, "")
-		// make sure the container is removed in
-		// the event of a creation error.
-		if err != nil {
-			log.Errorf("Error starting %s. %s\n", conf.Image, err)
-			client.RemoveContainer(id, true, true)
-			return nil, err
-		}
+		return nil, err
 	}
 
 	// ensures the container is always stopped
 	// and ready to be removed.
 	defer func() {
-		client.StopContainer(id, 5)
-		client.KillContainer(id, "9")
+		client.StopContainer(info.Id, 5)
+		client.KillContainer(info.Id, "9")
 	}()
-
-	// fetches the container information.
-	info, err := client.InspectContainer(id)
-	if err != nil {
-		log.Errorf("Error inspecting %s. %s\n", conf.Image, err)
-		client.RemoveContainer(id, true, true)
-		return nil, err
-	}
 
 	// channel listening for errors while the
 	// container is running async.
@@ -81,18 +51,10 @@ func Run(client dockerclient.Client, conf *dockerclient.ContainerConfig, pull bo
 	infoc := make(chan *dockerclient.ContainerInfo, 1)
 	go func() {
 
-		// starts the container
-		err := client.StartContainer(id, &conf.HostConfig)
-		if err != nil {
-			log.Errorf("Error starting %s. %s\n", conf.Image, err)
-			errc <- err
-			return
-		}
-
 		// blocks and waits for the container to finish
 		// by streaming the logs (to /dev/null). Ideally
 		// we could use the `wait` function instead
-		rc, err := client.ContainerLogs(id, logOptsTail)
+		rc, err := client.ContainerLogs(info.Id, logOptsTail)
 		if err != nil {
 			log.Errorf("Error tailing %s. %s\n", conf.Image, err)
 			errc <- err
@@ -102,7 +64,7 @@ func Run(client dockerclient.Client, conf *dockerclient.ContainerConfig, pull bo
 		StdCopy(os.Stdout, os.Stdout, rc)
 
 		// fetches the container information
-		info, err := client.InspectContainer(id)
+		info, err := client.InspectContainer(info.Id)
 		if err != nil {
 			log.Errorf("Error getting exit code for %s. %s\n", conf.Image, err)
 			errc <- err
@@ -116,20 +78,17 @@ func Run(client dockerclient.Client, conf *dockerclient.ContainerConfig, pull bo
 		return info, nil
 	case err := <-errc:
 		return info, err
-		// TODO checkout net.Context and cancel
-		// case <-time.After(timeout):
-		// 	return info, ErrTimeout
 	}
 }
 
-func RunDaemon(client dockerclient.Client, conf *dockerclient.ContainerConfig, pull bool) (*dockerclient.ContainerInfo, error) {
+func Start(client dockerclient.Client, conf *dockerclient.ContainerConfig, pull bool) (*dockerclient.ContainerInfo, error) {
 	// force-pull the image if specified.
 	// TEMPORARY: always try to pull the new image for now
 	// since we'll be frequently updating the plugin images
 	// over the next few weeks
-	if pull || strings.HasPrefix(conf.Image, "plugins/") {
-		client.PullImage(conf.Image, nil)
-	}
+	// if pull || strings.HasPrefix(conf.Image, "plugins/") {
+	// 	client.PullImage(conf.Image, nil)
+	// }
 
 	// attempts to create the contianer
 	id, err := client.CreateContainer(conf, "")

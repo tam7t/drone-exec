@@ -7,6 +7,8 @@
 _obj
 _test
 _notes
+_backup
+vendor
 
 # Architecture specific extensions/prefixes
 *.[568vq]
@@ -17,7 +19,6 @@ _notes
 _cgo_defun.c
 _cgo_gotypes.go
 _cgo_export.*
-
 _testmain.go
 
 *.exe

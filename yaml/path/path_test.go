@@ -31,6 +31,11 @@ func Test_Parse(t *testing.T) {
 			g.Assert(p).Equal("/drone/src/github.com/foo/bar")
 		})
 
+		g.It("Should not prepend root if already part of path", func() {
+			p := Parse(sampleAbs, "http://github.com/foo/bar")
+			g.Assert(p).Equal("/drone/src/github.com/octocat/hello-world")
+		})
+
 		g.It("Should use an empty path when the url is malformed", func() {
 			p := Parse(sampleMissing, "%gh&%ij")
 			g.Assert(p).Equal("/drone/src")
@@ -49,4 +54,9 @@ clone: {}
 
 var sampleMissing = `
 build: {}
+`
+
+var sampleAbs = `
+clone:
+  path: /drone/src/github.com/octocat/hello-world
 `
