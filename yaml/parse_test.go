@@ -95,7 +95,13 @@ func TestParse(t *testing.T) {
 			g.Assert(s[1].Filter.Repo).Equal("octocat/helloworld")
 			g.Assert(s[1].Filter.Matrix).Equal(map[string]string{"go_version": "1.5"})
 		})
+
+		g.It("should error when Yaml is malformed", func() {
+			_, err := ParseString(malformed)
+			g.Assert(err.Error()).Equal("yaml: found unexpected ':'")
+		})
 	})
+
 }
 
 var sample = `
@@ -142,3 +148,5 @@ deploy:
       matrix:
         go_version: 1.5
 `
+
+var malformed = `build: { image: golang:1.4.2, commands: [ go build, go test ] }`

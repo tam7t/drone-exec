@@ -65,7 +65,7 @@ func (s *MapEqualSlice) Slice() []string {
 // Pluginslice is a slice of Plugins with a custom Yaml
 // unarmshal function to preserve ordering.
 type Pluginslice struct {
-	parts []*Plugin
+	parts []Plugin
 }
 
 func (s *Pluginslice) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -81,8 +81,8 @@ func (s *Pluginslice) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	// unarmshals each item in the mapSlice,
 	// unmarshal and append to the slice.
 	err = unmarshalYaml(obj, func(key string, val []byte) error {
-		plugin := &Plugin{}
-		err := yaml.Unmarshal(val, plugin)
+		plugin := Plugin{}
+		err := yaml.Unmarshal(val, &plugin)
 		if err != nil {
 			return err
 		}
@@ -95,14 +95,14 @@ func (s *Pluginslice) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return err
 }
 
-func (s *Pluginslice) Slice() []*Plugin {
+func (s *Pluginslice) Slice() []Plugin {
 	return s.parts
 }
 
 // ContainerSlice is a slice of Containers with a custom
 // Yaml unarmshal function to preserve ordering.
 type Containerslice struct {
-	parts []*Container
+	parts []Container
 }
 
 func (s *Containerslice) UnmarshalYAML(unmarshal func(interface{}) error) error {
@@ -118,8 +118,8 @@ func (s *Containerslice) UnmarshalYAML(unmarshal func(interface{}) error) error 
 	// unarmshals each item in the mapSlice,
 	// unmarshal and append to the slice.
 	return unmarshalYaml(obj, func(key string, val []byte) error {
-		ctr := &Container{}
-		err := yaml.Unmarshal(val, ctr)
+		ctr := Container{}
+		err := yaml.Unmarshal(val, &ctr)
 		if err != nil {
 			return err
 		}
@@ -131,7 +131,7 @@ func (s *Containerslice) UnmarshalYAML(unmarshal func(interface{}) error) error 
 	})
 }
 
-func (s *Containerslice) Slice() []*Container {
+func (s *Containerslice) Slice() []Container {
 	return s.parts
 }
 

@@ -36,8 +36,12 @@ func Inject(raw string, params map[string]string) string {
 // We want to avoid a malicious pull request that allows someone
 // to inject and print private variables.
 func InjectSafe(raw string, params map[string]string) string {
-	before, _ := parse(raw)
+	before, err := parse(raw)
+	if err != nil {
+		return raw // TODO probably should return an error here instead
+	}
 	after, _ := parse(Inject(raw, params))
+	before.Cache = after.Cache
 	before.Notify = after.Notify
 	before.Publish = after.Publish
 	before.Deploy = after.Deploy
