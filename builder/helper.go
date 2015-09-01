@@ -1,6 +1,6 @@
-package build
+package builder
 
-import "github.com/drone/drone-exec/build/parse"
+import "github.com/drone/drone-exec/builder/parse"
 
 func Parse(yaml string) (*Build, error) {
 	t, err := parse.Parse(yaml)

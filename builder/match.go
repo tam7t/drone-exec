@@ -1,10 +1,10 @@
-package build
+package builder
 
 import (
 	"path"
 	"strings"
 
-	"github.com/drone/drone-exec/build/parse"
+	"github.com/drone/drone-exec/builder/parse"
 )
 
 // isMatch is a helper function that returns true if

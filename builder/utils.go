@@ -1,11 +1,11 @@
-package build
+package builder
 
 import (
 	"encoding/json"
 	"strconv"
 	"strings"
 
-	"github.com/drone/drone-exec/build/parse"
+	"github.com/drone/drone-exec/builder/parse"
 	"github.com/drone/drone-plugin-go/plugin"
 	"github.com/samalba/dockerclient"
 )

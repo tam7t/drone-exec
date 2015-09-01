@@ -1,4 +1,4 @@
-package build
+package builder
 
 import (
 	"errors"
@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/drone/drone-exec/build/parse"
+	"github.com/drone/drone-exec/builder/parse"
 	"github.com/drone/drone-exec/docker"
 	"github.com/samalba/dockerclient"
 )

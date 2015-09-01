@@ -7,8 +7,8 @@ import (
 	"syscall"
 	"time"
 
-	builder "github.com/drone/drone-exec/build"
-	"github.com/drone/drone-exec/build/parse"
+	"github.com/drone/drone-exec/builder"
+	"github.com/drone/drone-exec/builder/parse"
 	"github.com/drone/drone-exec/docker"
 	"github.com/drone/drone-exec/yaml/inject"
 	"github.com/drone/drone-exec/yaml/path"
@@ -158,24 +158,3 @@ func main() {
 		os.Exit(state.ExitCode())
 	}
 }
-
-// applies verification and transformation rules
-// err = apply.Rules(&apply.Context{conf, repo, build, job, sys, ws})
-// if err != nil {
-// 	log.Debugln(err) // print error messages in debug mode only
-// 	log.Fatalln("Error linting the .drone.yml")
-// }
-
-// // and append the matrix parameters as environment
-// // variables for the build
-// for k, v := range c.Job.Environment {
-// 	env := k + "=" + v
-// 	c.Conf.Build.Environment = append(c.Conf.Build.Environment, env)
-// }
-
-// // and append drone, jenkins, travis and other
-// // environment variables that may be of use.
-// for k, v := range toEnv(c) {
-// 	env := k + "=" + v
-// 	c.Conf.Build.Environment = append(c.Conf.Build.Environment, env)
-// }
