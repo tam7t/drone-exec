@@ -3,7 +3,7 @@ package script
 import (
 	"testing"
 
-	"github.com/drone/drone-exec/build/parse"
+	"github.com/drone/drone-exec/builder/parse"
 	"github.com/drone/drone-plugin-go/plugin"
 	"github.com/franela/goblin"
 	"github.com/samalba/dockerclient"

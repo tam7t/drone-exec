@@ -12,7 +12,7 @@ func Test_Utils(t *testing.T) {
 	g.Describe("Script writer", func() {
 
 		g.It("Should encode scripts", func() {
-			want := "echo ZWNobyBmb28= | base64 -d | $SHELL"
+			want := "echo ZWNobyBmb28= | base64 -d | /bin/sh"
 			got := encode([]byte("echo foo"))
 			g.Assert(want).Equal(got)
 		})

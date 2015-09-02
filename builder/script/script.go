@@ -3,7 +3,7 @@ package script
 import (
 	"bytes"
 
-	"github.com/drone/drone-exec/build/parse"
+	"github.com/drone/drone-exec/builder/parse"
 	"github.com/drone/drone-plugin-go/plugin"
 	"github.com/samalba/dockerclient"
 )
@@ -16,7 +16,7 @@ func Encode(w *plugin.Workspace, c *dockerclient.ContainerConfig, n *parse.Docke
 	var buf bytes.Buffer
 	buf.WriteString(setupScript)
 
-	if w != nil {
+	if w != nil && w.Keys != nil && w.Netrc != nil {
 		buf.WriteString(writeKey(
 			w.Keys.Private,
 		))

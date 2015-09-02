@@ -15,7 +15,7 @@ go test ./...
 
 You can run the program locally for testing purposes. The build details are provided to the program via a JSON payload as seen below:
 
-```
+```sh
 ./drone-exec --debug --setup --build <<EOF
 {
 	"system": {},
@@ -46,9 +46,9 @@ Note that the above program expects access to a Docker daemon. It will provision
 
 ### Docker
 
-Drone executes this program as a Docker container. Use the following command to build the Docker image for local integration testing within Drone:
+Use the following commands to build the Docker image:
 
-```
+```sh
 # compile the binary for the correct architecture
 env GOOS=linux GOARCH=amd64 go build
 
@@ -60,7 +60,7 @@ docker build --rm=true -t drone/drone-exec .
 
 Using the `vexp` utility to vendor dependencies:
 
-```
+```sh
 go get https://github.com/kr/vexp
 ./vexp
 ```

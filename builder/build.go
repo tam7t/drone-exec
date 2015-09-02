@@ -7,6 +7,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/drone/drone-exec/builder/parse"
+	"github.com/drone/drone-exec/builder/script"
 	"github.com/drone/drone-exec/docker"
 	"github.com/samalba/dockerclient"
 )
@@ -65,24 +66,33 @@ func (b *Build) walk(node parse.Node, state *State) (err error) {
 
 		case parse.NodeBuild:
 			// run setup
-			node.Vargs = map[string]interface{}{}
-			node.Vargs["commands"] = node.Commands
+			// node.Vargs = map[string]interface{}{}
+			// node.Vargs["commands"] = node.Commands
 
-			conf := toContainerConfig(node)
-			conf.Cmd = toCommand(state, node)
-			conf.Image = "plugins/drone-build"
-			info, err := docker.Run(state.Client, conf, node.Pull)
-			if err != nil {
-				state.Exit(255)
-			} else if info.State.ExitCode != 0 {
-				state.Exit(info.State.ExitCode)
-			}
+			// conf := toContainerConfig(node)
+			// conf.Cmd = toCommand(state, node)
+			// conf.Image = "plugins/drone-build"
+			// info, err := docker.Run(state.Client, conf, node.Pull)
+			// if err != nil {
+			// 	state.Exit(255)
+			// } else if info.State.ExitCode != 0 {
+			// 	state.Exit(info.State.ExitCode)
+			// }
 
 			// run build
-			conf = toContainerConfig(node)
-			conf.Entrypoint = []string{"/bin/sh", "-e"}
-			conf.Cmd = []string{"/drone/bin/build.sh"}
-			info, err = docker.Run(state.Client, conf, node.Pull)
+			// conf := toContainerConfig(node)
+			// conf.Entrypoint = []string{"/bin/sh", "-e"}
+			// conf.Cmd = []string{"/drone/bin/build.sh"}
+
+			conf := toContainerConfig(node)
+			conf.WorkingDir = state.Workspace.Path
+			if state.Repo.Private {
+				script.Encode(state.Workspace, conf, node)
+			} else {
+				script.Encode(nil, conf, node)
+			}
+
+			info, err := docker.Run(state.Client, conf, node.Pull)
 			if err != nil {
 				state.Exit(255)
 			} else if info.State.ExitCode != 0 {
