@@ -40,7 +40,7 @@ You can run the program locally for testing purposes. The build details are prov
 	"job": {
 		"environment": {}
 	},
-	"yaml": "{ build: { image: 'golang:1.4.2', environment: ['GOPATH=/drone'], commands: ['cd redis', 'go build', 'go test -v']}, compose: { redis: { image: 'redis:2.8' } } }"
+	"yaml": "{ build: { image: 'golang:1.4.2', commands: ['cd redis', 'go build', 'go test -v']}, compose: { redis: { image: 'redis:2.8' } } }"
 }
 EOF
 ```
