@@ -4,6 +4,7 @@ import (
 	"flag"
 	"os"
 	"os/signal"
+	"strconv"
 	"syscall"
 	"time"
 
@@ -60,6 +61,11 @@ func main() {
 	// injects the matrix configuration parameters
 	// into the yaml prior to parsing.
 	yml := inject.Inject(payload.Yaml, payload.Job.Environment)
+	yml = inject.Inject(yml, map[string]string{
+		"COMMIT":       payload.Build.Commit.Sha,
+		"BRANCH":       payload.Build.Commit.Branch,
+		"BUILD_NUMBER": strconv.Itoa(payload.Build.Number),
+	})
 
 	// extracts the clone path from the yaml. If
 	// the clone path doesn't exist it uses a path
