@@ -20,7 +20,8 @@ import (
 )
 
 var (
-	setup  bool // execute clone steps
+	cache  bool // execute cache steps
+	clone  bool // execute clone steps
 	build  bool // execute build steps
 	deploy bool // execute deploy steps
 	notify bool // execute notify steps
@@ -41,7 +42,8 @@ var payload = struct {
 func main() {
 
 	// parses command line flags
-	flag.BoolVar(&setup, "setup", false, "")
+	flag.BoolVar(&cache, "cache", false, "")
+	flag.BoolVar(&clone, "clone", false, "")
 	flag.BoolVar(&build, "build", false, "")
 	flag.BoolVar(&deploy, "deploy", false, "")
 	flag.BoolVar(&notify, "notify", false, "")
@@ -136,8 +138,14 @@ func main() {
 		System:    payload.System,
 		Workspace: payload.Workspace,
 	}
-	if setup {
-		err = r.RunNode(state, parser.NodeCache|parser.NodeClone)
+	if cache {
+		err = r.RunNode(state, parser.NodeCache)
+		if err != nil {
+			log.Debugln(err)
+		}
+	}
+	if clone {
+		err = r.RunNode(state, parser.NodeClone)
 		if err != nil {
 			log.Debugln(err)
 		}
@@ -154,7 +162,7 @@ func main() {
 			log.Debugln(err)
 		}
 	}
-	if setup {
+	if cache {
 		err = r.RunNode(state, parser.NodeCache)
 		if err != nil {
 			log.Debugln(err)
