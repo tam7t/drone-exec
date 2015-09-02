@@ -55,6 +55,7 @@ type Vargs map[string]interface{}
 type Filter struct {
 	Repo    string
 	Branch  string
+	Event   string
 	Success string
 	Failure string
 	Matrix  map[string]string
