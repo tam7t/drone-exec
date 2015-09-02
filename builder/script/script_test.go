@@ -56,6 +56,10 @@ var decoded1 = []byte(`
 [ -z "$HOME"  ] && export HOME="/root"
 [ -z "$SHELL" ] && export SHELL="/bin/sh"
 
+export GOBIN=/drone/bin
+export GOPATH=/drone
+export PATH=$PATH:$GOBIN
+
 echo JCBnbyBidWlsZAo= | base64 -d
 go build
 
@@ -69,6 +73,10 @@ rm -rf $HOME/.ssh/id_rsa
 var decoded2 = []byte(`
 [ -z "$HOME"  ] && export HOME="/root"
 [ -z "$SHELL" ] && export SHELL="/bin/sh"
+
+export GOBIN=/drone/bin
+export GOPATH=/drone
+export PATH=$PATH:$GOBIN
 
 mkdir -p $HOME/.ssh
 cat <<EOF > $HOME/.ssh/id_rsa

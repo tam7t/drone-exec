@@ -48,7 +48,6 @@ func toEnv(s *State) []string {
 
 	envs = append(envs, "CI=true")
 	envs = append(envs, "CI_NAME=drone")
-	envs = append(envs, "GOPATH=/drone")
 	envs = append(envs, "DRONE=true")
 
 	envs = append(envs, fmt.Sprintf("DRONE_DIR=%s", s.Workspace.Path))

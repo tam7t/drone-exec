@@ -3,6 +3,7 @@ build:
   image: golang:1.5
   environment:
     - GOPATH=/drone
+    - GO15VENDOREXPERIMENT=1
   commands:
     - go get ./...
     - go test ./...

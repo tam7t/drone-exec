@@ -10,6 +10,10 @@ var entrypoint = []string{"/bin/sh", "-e", "-c"}
 const setupScript = `
 [ -z "$HOME"  ] && export HOME="/root"
 [ -z "$SHELL" ] && export SHELL="/bin/sh"
+
+export GOBIN=/drone/bin
+export GOPATH=/drone
+export PATH=$PATH:$GOBIN
 `
 
 const teardownScript = `
