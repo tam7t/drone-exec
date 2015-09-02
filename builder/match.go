@@ -5,13 +5,13 @@ import (
 	"path"
 	"strings"
 
-	"github.com/drone/drone-exec/builder/parse"
+	"github.com/drone/drone-exec/parser"
 	"github.com/drone/drone-plugin-go/plugin"
 )
 
 // isMatch is a helper function that returns true if
 // all criteria is matched.
-func isMatch(node *parse.FilterNode, s *State) bool {
+func isMatch(node *parser.FilterNode, s *State) bool {
 
 	// TODO this code should be stored inside the
 	// build object itself. So we need to add

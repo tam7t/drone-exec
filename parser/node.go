@@ -1,4 +1,4 @@
-package parse
+package parser
 
 import "github.com/drone/drone-exec/yaml"
 
@@ -62,8 +62,8 @@ type DockerNode struct {
 	Vargs       map[string]interface{}
 }
 
-func newDockerNode(typ NodeType, c yaml.Container) (*DockerNode, error) {
-	var node = DockerNode{
+func newDockerNode(typ NodeType, c yaml.Container) *DockerNode {
+	return &DockerNode{
 		NodeType:    typ,
 		Image:       c.Image,
 		Pull:        c.Pull,
@@ -74,20 +74,18 @@ func newDockerNode(typ NodeType, c yaml.Container) (*DockerNode, error) {
 		Volumes:     c.Volumes,
 		Net:         c.Net,
 	}
-	var err = resolveImage(&node)
-	return &node, err
 }
 
-func newPluginNode(typ NodeType, p yaml.Plugin) (*DockerNode, error) {
-	node, err := newDockerNode(typ, p.Container)
+func newPluginNode(typ NodeType, p yaml.Plugin) *DockerNode {
+	node := newDockerNode(typ, p.Container)
 	node.Vargs = p.Vargs
-	return node, err
+	return node
 }
 
-func newBuildNode(typ NodeType, b yaml.Build) (*DockerNode, error) {
-	node, err := newDockerNode(typ, b.Container)
+func newBuildNode(typ NodeType, b yaml.Build) *DockerNode {
+	node := newDockerNode(typ, b.Container)
 	node.Commands = b.Commands
-	return node, err
+	return node
 }
 
 // FilterNode represents a conditional step used to

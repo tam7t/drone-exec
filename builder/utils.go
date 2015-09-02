@@ -5,14 +5,14 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/drone/drone-exec/builder/parse"
+	"github.com/drone/drone-exec/parser"
 	"github.com/drone/drone-plugin-go/plugin"
 	"github.com/samalba/dockerclient"
 )
 
 // helper function that converts the build step to
 // a containerConfig for use with the dockerclient
-func toContainerConfig(n *parse.DockerNode) *dockerclient.ContainerConfig {
+func toContainerConfig(n *parser.DockerNode) *dockerclient.ContainerConfig {
 	config := &dockerclient.ContainerConfig{
 		Image:      n.Image,
 		Env:        n.Environment,
@@ -89,7 +89,7 @@ func toEnv(s *State) []string {
 // helper function to encode the build step to
 // a json string. Primarily used for plugins, which
 // expect a json encoded string in stdin or arg[1].
-func toCommand(s *State, n *parse.DockerNode) []string {
+func toCommand(s *State, n *parser.DockerNode) []string {
 	p := payload{
 		Workspace: s.Workspace,
 		Repo:      s.Repo,

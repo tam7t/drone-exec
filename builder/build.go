@@ -2,13 +2,11 @@ package builder
 
 import (
 	"errors"
-	"path"
-	"strings"
 
-	log "github.com/Sirupsen/logrus"
-	"github.com/drone/drone-exec/builder/parse"
+	// log "github.com/Sirupsen/logrus"
 	"github.com/drone/drone-exec/builder/script"
 	"github.com/drone/drone-exec/docker"
+	"github.com/drone/drone-exec/parser"
 	"github.com/samalba/dockerclient"
 )
 
@@ -21,26 +19,23 @@ const DefaultCloner = "plugins/drone-git"
 const DefaultCacher = "plugins/drone-cache"
 
 type Build struct {
-	tree  *parse.Tree
-	flags parse.NodeType
-
-	parseFuncs []func()
-	execFuncs  []func()
+	tree  *parser.Tree
+	flags parser.NodeType
 }
 
 func (b *Build) Run(state *State) error {
 	return b.RunNode(state, 0)
 }
 
-func (b *Build) RunNode(state *State, flags parse.NodeType) error {
+func (b *Build) RunNode(state *State, flags parser.NodeType) error {
 	b.flags = flags
 	return b.walk(b.tree.Root, state)
 }
 
-func (b *Build) walk(node parse.Node, state *State) (err error) {
+func (b *Build) walk(node parser.Node, state *State) (err error) {
 
 	switch node := node.(type) {
-	case *parse.ListNode:
+	case *parser.ListNode:
 		for _, node := range node.Nodes {
 			err = b.walk(node, state)
 			if err != nil {
@@ -48,23 +43,19 @@ func (b *Build) walk(node parse.Node, state *State) (err error) {
 			}
 		}
 
-	case *parse.FilterNode:
+	case *parser.FilterNode:
 		if isMatch(node, state) {
 			b.walk(node.Node, state)
-		} else {
-			log.Warnf("skipping step. filter conditions not met")
 		}
 
-	case *parse.DockerNode:
-
+	case *parser.DockerNode:
 		if shouldSkip(b.flags, node.NodeType) {
-			log.Warnf("skipping step. flag to run build not exists")
 			break
 		}
 
 		switch node.Type() {
 
-		case parse.NodeBuild:
+		case parser.NodeBuild:
 			// run setup
 			// node.Vargs = map[string]interface{}{}
 			// node.Vargs["commands"] = node.Commands
@@ -100,7 +91,7 @@ func (b *Build) walk(node parse.Node, state *State) (err error) {
 				state.Exit(info.State.ExitCode)
 			}
 
-		case parse.NodeCompose:
+		case parser.NodeCompose:
 			conf := toContainerConfig(node)
 			_, err := docker.Start(state.Client, conf, node.Pull)
 			if err != nil {
@@ -128,7 +119,7 @@ func expectMatch() {
 
 func maybeResolveImage() {}
 
-func maybeEscalate(conf dockerclient.ContainerConfig, node *parse.DockerNode) {
+func maybeEscalate(conf dockerclient.ContainerConfig, node *parser.DockerNode) {
 	if node.Image == "plugins/drone-docker" {
 		return
 	}
@@ -142,52 +133,13 @@ func maybeEscalate(conf dockerclient.ContainerConfig, node *parse.DockerNode) {
 // shouldSkip is a helper function that returns true if
 // node execution should be skipped. This happens when
 // the build is executed for a subset of build steps.
-func shouldSkip(flags parse.NodeType, nodeType parse.NodeType) bool {
+func shouldSkip(flags parser.NodeType, nodeType parser.NodeType) bool {
 	return flags != 0 && flags&nodeType == 0
 }
 
 // shouldEscalate is a helper function that returns true
 // if the plugin should be escalated to start the container
 // in privileged mode.
-func shouldEscalate(node *parse.DockerNode) bool {
+func shouldEscalate(node *parser.DockerNode) bool {
 	return node.Image == "plugins/drone-docker"
-}
-
-// resolveImage is a helper function that resolves the docker
-// image name. Plugins may use a short, alias name which needs
-// to be expanded.
-func resolveImage(node *parse.DockerNode) error {
-	switch node.NodeType {
-	case parse.NodeBuild, parse.NodeCompose:
-		break
-	case parse.NodeClone:
-		node.Image = expandImageDefault(node.Image, DefaultCloner)
-	case parse.NodeCache:
-		node.Image = expandImageDefault(node.Image, DefaultCacher)
-	default:
-		node.Image = expandImage(node.Image)
-	}
-	if len(node.Image) == 0 {
-		return ErrNoImage
-	}
-	return nil
-}
-
-// expandImage expands an alias plugin name to use a
-// fully qualified image name.
-func expandImage(image string) string {
-	if !strings.Contains(image, "/") {
-		image = path.Join("plugins", "drone-"+image)
-	}
-	return strings.Replace(image, "_", "-", -1)
-}
-
-// expandImageDefault returns the default image if none
-// is specified in the Yaml. If an image is specified,
-// it expands the alias.
-func expandImageDefault(image, defaultImage string) string {
-	if len(image) == 0 {
-		return defaultImage
-	}
-	return expandImage(image)
 }

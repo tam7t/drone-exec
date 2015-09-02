@@ -3,7 +3,7 @@ package script
 import (
 	"bytes"
 
-	"github.com/drone/drone-exec/builder/parse"
+	"github.com/drone/drone-exec/parser"
 	"github.com/drone/drone-plugin-go/plugin"
 	"github.com/samalba/dockerclient"
 )
@@ -12,7 +12,7 @@ import (
 // provided Container config. For linux, the build script
 // is embedded as the container entrypoint command, base64
 // encoded as a one-line script.
-func Encode(w *plugin.Workspace, c *dockerclient.ContainerConfig, n *parse.DockerNode) {
+func Encode(w *plugin.Workspace, c *dockerclient.ContainerConfig, n *parser.DockerNode) {
 	var buf bytes.Buffer
 	buf.WriteString(setupScript)
 
