@@ -128,13 +128,13 @@ func main() {
 			log.Debugln(err)
 		}
 	}
-	if build && !state.IsFailed() {
+	if build && !state.Failed() {
 		err = b.RunNode(state, parse.NodeCompose|parse.NodeBuild)
 		if err != nil {
 			log.Debugln(err)
 		}
 	}
-	if deploy && !state.IsFailed() {
+	if deploy && !state.Failed() {
 		err = b.RunNode(state, parse.NodePublish|parse.NodeDeploy)
 		if err != nil {
 			log.Debugln(err)
@@ -153,7 +153,7 @@ func main() {
 		}
 	}
 
-	if state.IsFailed() {
+	if state.Failed() {
 		controller.Destroy()
 		os.Exit(state.ExitCode())
 	}
