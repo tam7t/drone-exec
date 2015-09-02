@@ -8,9 +8,9 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/drone/drone-exec/builder"
 	"github.com/drone/drone-exec/docker"
 	"github.com/drone/drone-exec/parser"
+	"github.com/drone/drone-exec/runner"
 	"github.com/drone/drone-exec/yaml/inject"
 	"github.com/drone/drone-exec/yaml/path"
 	"github.com/drone/drone-plugin-go/plugin"
@@ -86,7 +86,7 @@ func main() {
 		log.Fatalln("Error parsing the .drone.yml")
 		os.Exit(1)
 	}
-	b := builder.Load(tree)
+	r := runner.Load(tree)
 
 	client, err := dockerclient.NewDockerClient("unix:///var/run/docker.sock", nil)
 	if err != nil {
@@ -126,7 +126,7 @@ func main() {
 		os.Exit(128)         // cancel is treated like ctrl+c
 	}()
 
-	state := &builder.State{
+	state := &runner.State{
 		Client:    controller,
 		Stdout:    os.Stdout,
 		Stderr:    os.Stdout,
@@ -137,31 +137,31 @@ func main() {
 		Workspace: payload.Workspace,
 	}
 	if setup {
-		err = b.RunNode(state, parser.NodeCache|parser.NodeClone)
+		err = r.RunNode(state, parser.NodeCache|parser.NodeClone)
 		if err != nil {
 			log.Debugln(err)
 		}
 	}
 	if build && !state.Failed() {
-		err = b.RunNode(state, parser.NodeCompose|parser.NodeBuild)
+		err = r.RunNode(state, parser.NodeCompose|parser.NodeBuild)
 		if err != nil {
 			log.Debugln(err)
 		}
 	}
 	if deploy && !state.Failed() {
-		err = b.RunNode(state, parser.NodePublish|parser.NodeDeploy)
+		err = r.RunNode(state, parser.NodePublish|parser.NodeDeploy)
 		if err != nil {
 			log.Debugln(err)
 		}
 	}
 	if setup {
-		err = b.RunNode(state, parser.NodeCache)
+		err = r.RunNode(state, parser.NodeCache)
 		if err != nil {
 			log.Debugln(err)
 		}
 	}
 	if notify {
-		err = b.RunNode(state, parser.NodeNotify)
+		err = r.RunNode(state, parser.NodeNotify)
 		if err != nil {
 			log.Debugln(err)
 		}

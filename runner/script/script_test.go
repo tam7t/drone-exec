@@ -16,7 +16,7 @@ func Test_Rule(t *testing.T) {
 
 		g.It("Should encode the build script", func() {
 			c := &dockerclient.ContainerConfig{}
-			n := &parse.DockerNode{
+			n := &parser.DockerNode{
 				Commands: []string{"go build", "go test"},
 			}
 			Encode(nil, c, n)
@@ -29,7 +29,7 @@ func Test_Rule(t *testing.T) {
 
 		g.It("Should encode the build script with private key and netrc", func() {
 			c := &dockerclient.ContainerConfig{}
-			n := &parse.DockerNode{
+			n := &parser.DockerNode{
 				Commands: []string{"go build", "go test"},
 			}
 			w := &plugin.Workspace{

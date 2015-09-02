@@ -1,12 +1,12 @@
-package builder
+package runner
 
 import (
 	"errors"
 
 	// log "github.com/Sirupsen/logrus"
-	"github.com/drone/drone-exec/builder/script"
 	"github.com/drone/drone-exec/docker"
 	"github.com/drone/drone-exec/parser"
+	"github.com/drone/drone-exec/runner/script"
 	"github.com/samalba/dockerclient"
 )
 
