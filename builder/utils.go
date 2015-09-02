@@ -48,23 +48,33 @@ func toEnv(s *State) []string {
 
 	envs = append(envs, "CI=true")
 	envs = append(envs, "DRONE=true")
+	envs = append(envs, "CI_NAME=drone")
+
 	envs = append(envs, fmt.Sprintf("DRONE_DIR=%s", s.Workspace.Path))
 	envs = append(envs, fmt.Sprintf("DRONE_REPO=%s", s.Repo.FullName))
+	envs = append(envs, fmt.Sprintf("CI_REPO=%s", s.Repo.FullName))
 
 	// environment variables specific to the job
 	envs = append(envs, fmt.Sprintf("DRONE_JOB_ID=%d", s.Job.ID))
 	envs = append(envs, fmt.Sprintf("DRONE_JOB_NUMBER=%d", s.Job.Number))
+	envs = append(envs, fmt.Sprintf("CI_JOB_ID=%d", s.Job.ID))
+	envs = append(envs, fmt.Sprintf("CI_JOB_NUMBER=%d", s.Job.Number))
 
 	// environment variables specific to the build
-	envs = append(envs, fmt.Sprintf("DRONE_BUILD_ID=%d", s.Build.Number))
 	envs = append(envs, fmt.Sprintf("DRONE_BUILD_NUMBER=%d", s.Build.Number))
 	envs = append(envs, fmt.Sprintf("DRONE_BUILD_DIR=%s", s.Workspace.Path))
 	envs = append(envs, fmt.Sprintf("DRONE_BRANCH=%s", s.Build.Commit.Branch))
 	envs = append(envs, fmt.Sprintf("DRONE_COMMIT=%s", s.Build.Commit.Sha))
+	envs = append(envs, fmt.Sprintf("CI_BRANCH=%s", s.Build.Commit.Branch))
+	envs = append(envs, fmt.Sprintf("CI_BUILD_DIR=%s", s.Workspace.Path))
+	envs = append(envs, fmt.Sprintf("CI_BUILD_NUMBER=%d", s.Build.Number))
+	envs = append(envs, fmt.Sprintf("CI_COMMIT=%s", s.Build.Commit.Sha))
+
+	envs = append(envs, fmt.Sprintf("CI_BUILD_URL=%s/%s/%d", s.System.Link, s.Repo.FullName, s.Build.Number))
 
 	// environment variables specific to the pull request
 	if s.Build.PullRequest != nil {
-		envs = append(envs, fmt.Sprintf("DRONE_PR=%d", s.Build.PullRequest.Number))
+		envs = append(envs, fmt.Sprintf("CI_PULL_REQUEST=%d", s.Build.PullRequest.Number))
 		envs = append(envs, fmt.Sprintf("DRONE_PULL_REQUEST=%d", s.Build.PullRequest.Number))
 	}
 

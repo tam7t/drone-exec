@@ -18,7 +18,9 @@ You can run the program locally for testing purposes. The build details are prov
 ```sh
 ./drone-exec --debug --setup --build <<EOF
 {
-	"system": {},
+	"system": {
+		"link": "http://localhost:8000"
+	},
 	"workspace": {},
 	"repo": {
 		"owner": "garyburd",
@@ -28,6 +30,7 @@ You can run the program locally for testing purposes. The build details are prov
 		"clone_url": "git://github.com/garyburd/redigo.git"
 	},
 	"build": {
+		"number": 1,
 		"head_commit": {
 			"ref": "refs/heads/master",
 			"sha": "d8dbe4d94f15fe89232e0402c6e8a0ddf21af3ab",
