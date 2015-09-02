@@ -32,6 +32,7 @@ func resolveImage(d *DockerNode) error {
 	if len(d.Image) == 0 {
 		return ErrNoImage
 	}
+	d.Image = expandImageTag(d.Image)
 	return nil
 }
 
@@ -52,4 +53,20 @@ func expandImageDefault(image, defaultImage string) string {
 		return defaultImage
 	}
 	return expandImage(image)
+}
+
+// expandImageTag is a helper function that automatically
+// expands the image to include the :latest tag if not present
+func expandImageTag(image string) string {
+	if strings.Contains(image, "@") {
+		return image
+	}
+	n := strings.LastIndex(image, ":")
+	if n < 0 {
+		return image + ":latest"
+	}
+	if tag := image[n+1:]; strings.Contains(tag, "/") {
+		return image + ":latest"
+	}
+	return image
 }
