@@ -2,7 +2,7 @@ package builder
 
 import (
 	"encoding/json"
-	"strconv"
+	"fmt"
 	"strings"
 
 	"github.com/drone/drone-exec/builder/parse"
@@ -43,24 +43,37 @@ func toContainerConfig(n *parse.DockerNode) *dockerclient.ContainerConfig {
 
 // helper function to inject drone-specific environment
 // variables into the container.
-func toEnv(s *State) map[string]string {
-	return map[string]string{
-		"CI":           "true",
-		"BUILD_DIR":    s.Workspace.Path,
-		"BUILD_ID":     strconv.Itoa(s.Build.Number),
-		"BUILD_NUMBER": strconv.Itoa(s.Build.Number),
-		"JOB_NAME":     s.Repo.FullName,
-		"WORKSPACE":    s.Workspace.Path,
-		"GIT_BRANCH":   s.Build.Commit.Branch,
-		"GIT_COMMIT":   s.Build.Commit.Sha,
+func toEnv(s *State) []string {
+	var envs []string
 
-		"DRONE":        "true",
-		"DRONE_REPO":   s.Repo.FullName,
-		"DRONE_BUILD":  strconv.Itoa(s.Build.Number),
-		"DRONE_BRANCH": s.Build.Commit.Branch,
-		"DRONE_COMMIT": s.Build.Commit.Sha,
-		"DRONE_DIR":    s.Workspace.Path,
+	envs = append(envs, "CI=true")
+	envs = append(envs, "DRONE=true")
+	envs = append(envs, fmt.Sprintf("DRONE_DIR=%s", s.Workspace.Path))
+	envs = append(envs, fmt.Sprintf("DRONE_REPO=%s", s.Repo.FullName))
+
+	// environment variables specific to the job
+	envs = append(envs, fmt.Sprintf("DRONE_JOB_ID=%d", s.Job.ID))
+	envs = append(envs, fmt.Sprintf("DRONE_JOB_NUMBER=%d", s.Job.Number))
+
+	// environment variables specific to the build
+	envs = append(envs, fmt.Sprintf("DRONE_BUILD_ID=%d", s.Build.Number))
+	envs = append(envs, fmt.Sprintf("DRONE_BUILD_NUMBER=%d", s.Build.Number))
+	envs = append(envs, fmt.Sprintf("DRONE_BUILD_DIR=%s", s.Workspace.Path))
+	envs = append(envs, fmt.Sprintf("DRONE_BRANCH=%s", s.Build.Commit.Branch))
+	envs = append(envs, fmt.Sprintf("DRONE_COMMIT=%s", s.Build.Commit.Sha))
+
+	// environment variables specific to the pull request
+	if s.Build.PullRequest != nil {
+		envs = append(envs, fmt.Sprintf("DRONE_PR=%d", s.Build.PullRequest.Number))
+		envs = append(envs, fmt.Sprintf("DRONE_PULL_REQUEST=%d", s.Build.PullRequest.Number))
 	}
+
+	// environment variables for the current matrix axis
+	for key, val := range s.Job.Environment {
+		envs = append(envs, fmt.Sprintf("%s=%s", key, val))
+	}
+
+	return envs
 }
 
 // helper function to encode the build step to
@@ -73,22 +86,13 @@ func toCommand(s *State, n *parse.DockerNode) []string {
 		Build:     s.Build,
 		Job:       s.Job,
 		Vargs:     n.Vargs,
-
-		Clone: &plugin.Clone{
-			Origin: s.Repo.Clone,
-			Remote: s.Repo.Clone,
-			Branch: s.Build.Commit.Branch,
-			Sha:    s.Build.Commit.Sha,
-			Ref:    s.Build.Commit.Ref,
-			Dir:    s.Workspace.Path,
-		},
 	}
 	p.System = &plugin.System{
 		Version: s.System.Version,
 		Link:    s.System.Link,
 	}
 	b, _ := json.Marshal(p)
-	return []string{string(b)}
+	return []string{"--", string(b)}
 }
 
 // payload represents the payload of a plugin
@@ -100,7 +104,6 @@ type payload struct {
 	Repo      *plugin.Repo      `json:"repo"`
 	Build     *plugin.Build     `json:"build"`
 	Job       *plugin.Job       `json:"job"`
-	Clone     *plugin.Clone     `json:"clone"`
 
 	Vargs map[string]interface{} `json:"vargs"`
 }

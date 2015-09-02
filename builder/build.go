@@ -85,6 +85,7 @@ func (b *Build) walk(node parse.Node, state *State) (err error) {
 			// conf.Cmd = []string{"/drone/bin/build.sh"}
 
 			conf := toContainerConfig(node)
+			conf.Env = append(conf.Env, toEnv(state)...)
 			conf.WorkingDir = state.Workspace.Path
 			if state.Repo.Private {
 				script.Encode(state.Workspace, conf, node)
