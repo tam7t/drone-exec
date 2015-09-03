@@ -82,7 +82,7 @@ mkdir -p $HOME/.ssh
 cat <<EOF > $HOME/.ssh/id_rsa
 -----BEGIN RSA PRIVATE KEY----- MIIEpQIBAAKCAQEA3Tz2...
 EOF
-chmod 0700 $HOME/.ssh
+chmod 0600 $HOME/.ssh
 
 cat <<EOF > $HOME/.ssh/config
 StrictHostKeyChecking no

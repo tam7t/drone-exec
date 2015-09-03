@@ -41,7 +41,7 @@ mkdir -p $HOME/.ssh
 cat <<EOF > $HOME/.ssh/id_rsa
 %s
 EOF
-chmod 0700 $HOME/.ssh
+chmod 0600 $HOME/.ssh
 `
 
 // keyConfScript is a helper script that is added
