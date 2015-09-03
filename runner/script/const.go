@@ -14,6 +14,8 @@ const setupScript = `
 export GOBIN=/drone/bin
 export GOPATH=/drone
 export PATH=$PATH:$GOBIN
+
+set -e
 `
 
 const teardownScript = `

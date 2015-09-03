@@ -60,6 +60,8 @@ export GOBIN=/drone/bin
 export GOPATH=/drone
 export PATH=$PATH:$GOBIN
 
+set -e
+
 echo JCBnbyBidWlsZAo= | base64 -d
 go build
 
@@ -77,6 +79,8 @@ var decoded2 = []byte(`
 export GOBIN=/drone/bin
 export GOPATH=/drone
 export PATH=$PATH:$GOBIN
+
+set -e
 
 mkdir -p $HOME/.ssh
 cat <<EOF > $HOME/.ssh/id_rsa
