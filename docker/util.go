@@ -83,12 +83,10 @@ func Run(client dockerclient.Client, conf *dockerclient.ContainerConfig, pull bo
 
 func Start(client dockerclient.Client, conf *dockerclient.ContainerConfig, pull bool) (*dockerclient.ContainerInfo, error) {
 	// force-pull the image if specified.
-	// TEMPORARY: always try to pull the new image for now
-	// since we'll be frequently updating the plugin images
-	// over the next few weeks
-	// if pull || strings.HasPrefix(conf.Image, "plugins/") {
-	// 	client.PullImage(conf.Image, nil)
-	// }
+	if pull {
+		log.Debugf("Pulling image %s", conf.Image)
+		client.PullImage(conf.Image, nil)
+	}
 
 	// attempts to create the contianer
 	id, err := client.CreateContainer(conf, "")

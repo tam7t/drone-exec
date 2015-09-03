@@ -26,6 +26,7 @@ var (
 	deploy bool // execute deploy steps
 	notify bool // execute notify steps
 	debug  bool // execute in debug mode
+	force  bool // force pull plugin images
 )
 
 // payload defines the raw plugin payload that
@@ -48,6 +49,7 @@ func main() {
 	flag.BoolVar(&deploy, "deploy", false, "")
 	flag.BoolVar(&notify, "notify", false, "")
 	flag.BoolVar(&debug, "debug", false, "")
+	flag.BoolVar(&force, "pull", false, "")
 	flag.Parse()
 
 	// unmarshal the json payload via stdin or
@@ -78,6 +80,7 @@ func main() {
 	rules := []parser.RuleFunc{
 		parser.ImageName,
 		parser.ImageMatchFunc(payload.System.Plugins),
+		parser.ImagePullFunc(force),
 		parser.SanitizeFunc(payload.Repo.Trusted),
 		parser.CacheFunc(payload.Repo.FullName),
 		parser.Escalate,

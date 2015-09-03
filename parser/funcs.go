@@ -86,6 +86,25 @@ func ImageMatchFunc(patterns []string) RuleFunc {
 	}
 }
 
+func ImagePull(n Node, pull bool) error {
+	d, ok := n.(*DockerNode)
+	if !ok {
+		return nil
+	}
+	switch d.NodeType {
+	case NodeBuild, NodeCompose:
+		return nil
+	}
+	d.Pull = pull
+	return nil
+}
+
+func ImagePullFunc(pull bool) RuleFunc {
+	return func(n Node) error {
+		return ImagePull(n, pull)
+	}
+}
+
 // Sanitize sanitizes a Docker Node by removing any potentially
 // harmful configuration options.
 func Sanitize(n Node) error {
