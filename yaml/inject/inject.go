@@ -3,8 +3,6 @@ package inject
 import (
 	"sort"
 	"strings"
-
-	"gopkg.in/yaml.v2"
 )
 
 // Inject injects a map of parameters into a raw string and returns
@@ -27,42 +25,4 @@ func Inject(raw string, params map[string]string) string {
 		injected = strings.Replace(injected, "$$"+k, v, -1)
 	}
 	return injected
-}
-
-// InjectSafe attempts to safely inject parameters without leaking
-// parameters in the Build or Compose section of the yaml file.
-//
-// The intended use case for this function are public pull requests.
-// We want to avoid a malicious pull request that allows someone
-// to inject and print private variables.
-func InjectSafe(raw string, params map[string]string) string {
-	before, err := parse(raw)
-	if err != nil {
-		return raw // TODO probably should return an error here instead
-	}
-	after, _ := parse(Inject(raw, params))
-	before.Cache = after.Cache
-	before.Notify = after.Notify
-	before.Publish = after.Publish
-	before.Deploy = after.Deploy
-	result, _ := yaml.Marshal(before)
-	return string(result)
-}
-
-// helper funtion to parse a yaml configuration file.
-func parse(raw string) (*config, error) {
-	cfg := config{}
-	err := yaml.Unmarshal([]byte(raw), &cfg)
-	return &cfg, err
-}
-
-type config struct {
-	Cache yaml.MapSlice
-	Clone yaml.MapSlice
-	Build yaml.MapSlice
-
-	Compose yaml.MapSlice
-	Publish yaml.MapSlice
-	Deploy  yaml.MapSlice
-	Notify  yaml.MapSlice
 }
