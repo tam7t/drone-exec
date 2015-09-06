@@ -13,6 +13,8 @@ import (
 	"github.com/drone/drone-exec/runner"
 	"github.com/drone/drone-exec/yaml/inject"
 	"github.com/drone/drone-exec/yaml/path"
+	"github.com/drone/drone-exec/yaml/secure"
+	"github.com/drone/drone-exec/yaml/shasum"
 	"github.com/drone/drone-plugin-go/plugin"
 	"github.com/samalba/dockerclient"
 
@@ -33,6 +35,7 @@ var (
 // stores the build metadata and configuration.
 var payload = struct {
 	Yaml      string            `json:"yaml"`
+	YamlEnc   string            `json:"yaml_encrypted"`
 	Repo      *plugin.Repo      `json:"repo"`
 	Build     *plugin.Build     `json:"build"`
 	Job       *plugin.Job       `json:"job"`
@@ -62,10 +65,34 @@ func main() {
 		log.SetLevel(log.DebugLevel)
 	}
 
+	var sec *secure.Secure
+	if payload.Workspace.Keys != nil {
+		var err error
+		sec, err = secure.Parse(payload.YamlEnc, payload.Workspace.Keys.Private)
+		if err != nil {
+			log.Debugln("Unable to decrypt encrypted secrets", err)
+		}
+
+	}
+	if sec != nil {
+		verified := shasum.Check(payload.Yaml, sec.Checksum)
+		switch {
+		case verified && plugin.IsPullRequest(payload.Build):
+			// TODO: injectSafe to prevent injecting in the build
+			payload.Yaml = inject.Inject(payload.Yaml, sec.Environment.Map())
+		case verified:
+			println(payload.Yaml)
+			payload.Yaml = inject.Inject(payload.Yaml, sec.Environment.Map())
+		case !verified:
+			log.Debugln("Unable to validate Yaml checksum", sec.Checksum)
+
+		}
+	}
+
 	// injects the matrix configuration parameters
 	// into the yaml prior to parsing.
-	yml := inject.Inject(payload.Yaml, payload.Job.Environment)
-	yml = inject.Inject(yml, map[string]string{
+	payload.Yaml = inject.Inject(payload.Yaml, payload.Job.Environment)
+	payload.Yaml = inject.Inject(payload.Yaml, map[string]string{
 		"COMMIT":       payload.Build.Commit.Sha,
 		"BRANCH":       payload.Build.Commit.Branch,
 		"BUILD_NUMBER": strconv.Itoa(payload.Build.Number),
@@ -74,18 +101,18 @@ func main() {
 	// extracts the clone path from the yaml. If
 	// the clone path doesn't exist it uses a path
 	// derrived from the repository uri.
-	payload.Workspace.Path = path.Parse(yml, payload.Repo.Link)
+	payload.Workspace.Path = path.Parse(payload.Yaml, payload.Repo.Link)
 	payload.Workspace.Root = "/drone/src"
 
 	rules := []parser.RuleFunc{
 		parser.ImageName,
 		parser.ImageMatchFunc(payload.System.Plugins),
 		parser.ImagePullFunc(force),
-		parser.SanitizeFunc(payload.Repo.Trusted),
+		parser.SanitizeFunc(payload.Repo.Trusted), //&& !plugin.PullRequest(payload.Build)
 		parser.CacheFunc(payload.Repo.FullName),
 		parser.Escalate,
 	}
-	tree, err := parser.Parse(yml, rules)
+	tree, err := parser.Parse(payload.Yaml, rules)
 	if err != nil {
 		log.Debugln(err) // print error messages in debug mode only
 		log.Fatalln("Error parsing the .drone.yml")
