@@ -32,7 +32,7 @@ func Parse(in, privKey string) (*Secure, error) {
 	// unmarshal the yaml
 	out := &Secure{}
 	err = yaml.Unmarshal(plain, out)
-	return out, nil
+	return out, err
 }
 
 // decrypt decrypts a JOSE string and returns the
