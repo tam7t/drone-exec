@@ -34,8 +34,8 @@ var (
 // payload defines the raw plugin payload that
 // stores the build metadata and configuration.
 var payload = struct {
-	Yaml      string            `json:"yaml"`
-	YamlEnc   string            `json:"yaml_encrypted"`
+	Yaml      string            `json:"config"`
+	YamlEnc   string            `json:"secret"`
 	Repo      *plugin.Repo      `json:"repo"`
 	Build     *plugin.Build     `json:"build"`
 	Job       *plugin.Job       `json:"job"`
@@ -79,13 +79,11 @@ func main() {
 		switch {
 		case verified && plugin.IsPullRequest(payload.Build):
 			// TODO: injectSafe to prevent injecting in the build
-			payload.Yaml = inject.Inject(payload.Yaml, sec.Environment.Map())
+			//payload.Yaml = inject.Inject(payload.Yaml, sec.Environment.Map())
 		case verified:
-			println(payload.Yaml)
 			payload.Yaml = inject.Inject(payload.Yaml, sec.Environment.Map())
 		case !verified:
 			log.Debugln("Unable to validate Yaml checksum", sec.Checksum)
-
 		}
 	}
 
