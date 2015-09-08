@@ -31,8 +31,11 @@ func (s *State) Exit(code int) {
 	s.Lock()
 	defer s.Unlock()
 
-	if code != 0 { // never override non-zero exit
+	// only persist non-zero exit
+	if code != 0 {
 		s.Job.ExitCode = code
+		s.Job.Status = plugin.StateFailure
+		s.Build.Status = plugin.StateFailure
 	}
 }
 

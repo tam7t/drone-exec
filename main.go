@@ -208,12 +208,21 @@ func main() {
 			log.Debugln(err)
 		}
 	}
+
 	if deploy && !state.Failed() {
 		err = r.RunNode(state, parser.NodePublish|parser.NodeDeploy)
 		if err != nil {
 			log.Debugln(err)
 		}
 	}
+
+	// if the build is not failed, at this point
+	// we can mark as successful
+	if !state.Failed() {
+		state.Job.Status = plugin.StateSuccess
+		state.Build.Status = plugin.StateSuccess
+	}
+
 	if cache {
 		err = r.RunNode(state, parser.NodeCache)
 		if err != nil {
