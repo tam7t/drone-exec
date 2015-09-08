@@ -10,8 +10,8 @@ import (
 )
 
 type Secure struct {
-	Checksum    string
-	Environment MapEqualSlice
+	Checksum    string        `yaml:"checksum"`
+	Environment MapEqualSlice `yaml:"environment"`
 }
 
 // Parse parses and returns the secure section of the

@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"os"
 	"os/signal"
 	"strconv"
@@ -71,19 +72,42 @@ func main() {
 		sec, err = secure.Parse(payload.YamlEnc, payload.Workspace.Keys.Private)
 		if err != nil {
 			log.Debugln("Unable to decrypt encrypted secrets", err)
+		} else {
+			log.Debugln("Successfully decrypted secrets")
 		}
 
 	}
+	// TODO This block of code (and the above block) need to be cleaned
+	//      up and written in a manner that facilitates better unit testing.
 	if sec != nil {
 		verified := shasum.Check(payload.Yaml, sec.Checksum)
+
+		// the checksum should be invalidated if the repository is
+		// public, and the build is a pull request, and the checksum
+		// value was not provided.
+		if plugin.IsPullRequest(payload.Build) && !payload.Repo.Private && len(sec.Checksum) == 0 {
+			verified = false
+		}
+
 		switch {
 		case verified && plugin.IsPullRequest(payload.Build):
-			// TODO: injectSafe to prevent injecting in the build
-			//payload.Yaml = inject.Inject(payload.Yaml, sec.Environment.Map())
+			log.Debugln("Injected secrets into Yaml safely")
+			var err error
+			payload.Yaml, err = inject.InjectSafe(payload.Yaml, sec.Environment.Map())
+			if err != nil {
+				fmt.Println("Error injecting Yaml secrets")
+				os.Exit(1)
+			}
 		case verified:
+			log.Debugln("Injected secrets into Yaml")
 			payload.Yaml = inject.Inject(payload.Yaml, sec.Environment.Map())
 		case !verified:
-			log.Debugln("Unable to validate Yaml checksum", sec.Checksum)
+			// if we can't validate the Yaml file we don't inject
+			// secrets, and therefore shouldn't bother running the
+			// deploy and notify tests.
+			deploy = false
+			notify = false
+			fmt.Println("Unable to validate Yaml checksum.", sec.Checksum)
 		}
 	}
 
@@ -91,7 +115,7 @@ func main() {
 	// into the yaml prior to parsing.
 	payload.Yaml = inject.Inject(payload.Yaml, payload.Job.Environment)
 	payload.Yaml = inject.Inject(payload.Yaml, map[string]string{
-		"COMMIT":       payload.Build.Commit.Sha,
+		"COMMIT":       payload.Build.Commit.Sha[:7],
 		"BRANCH":       payload.Build.Commit.Branch,
 		"BUILD_NUMBER": strconv.Itoa(payload.Build.Number),
 	})

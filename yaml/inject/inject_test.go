@@ -1,10 +1,10 @@
 package inject
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/franela/goblin"
+	"gopkg.in/yaml.v2"
 )
 
 func Test_Inject(t *testing.T) {
@@ -30,6 +30,51 @@ func Test_Inject(t *testing.T) {
 			s := "echo $$FOO $BAR"
 			g.Assert(s).Equal(Inject(s, nil))
 		})
+
+		g.It("Should safely inject params", func() {
+			m := map[string]string{
+				"TOKEN":  "FOO",
+				"SECRET": "BAR",
+			}
+			s, err := InjectSafe(before, m)
+			g.Assert(err == nil).IsTrue()
+
+			after := struct {
+				Build struct {
+					Image    string
+					Commands []string
+				}
+				Deploy struct {
+					Heroku struct {
+						Token  string
+						Secret string
+					}
+				}
+				Publish struct {
+					Amazon struct {
+						Token  string
+						Secret string
+					}
+				}
+				Notify struct {
+					Slack struct {
+						Token  string
+						Secret string
+					}
+				}
+			}{}
+
+			err = yaml.Unmarshal([]byte(s), &after)
+			g.Assert(err == nil).IsTrue()
+			g.Assert(after.Build.Commands[0]).Equal("echo $$TOKEN")
+			g.Assert(after.Build.Commands[1]).Equal("echo $$SECRET")
+			g.Assert(after.Deploy.Heroku.Token).Equal("FOO")
+			g.Assert(after.Deploy.Heroku.Secret).Equal("BAR")
+			g.Assert(after.Publish.Amazon.Token).Equal("FOO")
+			g.Assert(after.Publish.Amazon.Secret).Equal("BAR")
+			g.Assert(after.Notify.Slack.Token).Equal("FOO")
+			g.Assert(after.Notify.Slack.Secret).Equal("BAR")
+		})
 	})
 }
 
@@ -40,24 +85,15 @@ build:
     - echo $$TOKEN
     - echo $$SECRET
 deploy:
-  digital_ocean:
+  heroku:
     token: $$TOKEN
     secret: $$SECRET
-`
-
-var after = `
-cache: {}
-clone: {}
-build:
-  image: foo
-  commands:
-  - echo $$TOKEN
-  - echo $$SECRET
-compose: {}
-publish: {}
-deploy:
-  digital_ocean:
-    token: FOO
-    secret: BAR
-notify: {}
+publish:
+  amazon:
+    token: $$TOKEN
+    secret: $$SECRET
+notify:
+  slack:
+    token: $$TOKEN
+    secret: $$SECRET
 `
