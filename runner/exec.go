@@ -14,6 +14,7 @@ type State struct {
 
 	Repo      *plugin.Repo
 	Build     *plugin.Build
+	BuildLast *plugin.Build
 	Job       *plugin.Job
 	System    *plugin.System
 	Workspace *plugin.Workspace

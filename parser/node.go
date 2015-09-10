@@ -99,6 +99,7 @@ type FilterNode struct {
 	Event   string
 	Success string
 	Failure string
+	Change  string
 	Matrix  map[string]string
 
 	Node Node // Node to execution if conditions met
@@ -113,5 +114,6 @@ func newFilterNode(p yaml.Plugin) *FilterNode {
 		Matrix:   p.Filter.Matrix,
 		Success:  p.Filter.Success,
 		Failure:  p.Filter.Failure,
+		Change:   p.Filter.Change,
 	}
 }

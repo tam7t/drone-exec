@@ -22,12 +22,17 @@ func isMatch(node *parser.FilterNode, s *State) bool {
 	} else if strings.HasPrefix(s.Build.Commit.Ref, "refs/tags") {
 		event = "tag"
 	}
+	var last string
+	if s.BuildLast != nil {
+		last = s.BuildLast.Status
+	}
 
 	return matchBranch(node.Branch, s.Build.Commit.Branch) &&
 		matchMatrix(node.Matrix, s.Job.Environment) &&
 		matchRepo(node.Repo, s.Repo.FullName) &&
 		matchSuccess(node.Success, s.Job.Status) &&
 		matchFailure(node.Success, s.Job.Status) &&
+		matchChange(node.Change, s.Job.Status, last) &&
 		matchEvent(node.Event, event)
 }
 
@@ -98,6 +103,18 @@ func matchFailure(toggle, status string) bool {
 		return true
 	}
 	return ok && status != plugin.StateSuccess
+}
+
+func matchChange(toggle, status, last string) bool {
+	ok, err := parseBool(toggle)
+	if err != nil {
+		return true
+	}
+	switch status {
+	case plugin.StateRunning:
+		status = plugin.StateSuccess
+	}
+	return ok && status != last
 }
 
 func parseBool(str string) (value bool, err error) {

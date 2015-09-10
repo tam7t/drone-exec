@@ -39,6 +39,7 @@ var payload = struct {
 	YamlEnc   string            `json:"secret"`
 	Repo      *plugin.Repo      `json:"repo"`
 	Build     *plugin.Build     `json:"build"`
+	BuildLast *plugin.Build     `json:"build_last"`
 	Job       *plugin.Job       `json:"job"`
 	System    *plugin.System    `json:"system"`
 	Workspace *plugin.Workspace `json:"workspace"`
@@ -186,6 +187,7 @@ func main() {
 		Stderr:    os.Stdout,
 		Repo:      payload.Repo,
 		Build:     payload.Build,
+		BuildLast: payload.BuildLast,
 		Job:       payload.Job,
 		System:    payload.System,
 		Workspace: payload.Workspace,

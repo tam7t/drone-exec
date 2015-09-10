@@ -58,5 +58,6 @@ type Filter struct {
 	Event   string
 	Success string
 	Failure string
+	Change  string
 	Matrix  map[string]string
 }
