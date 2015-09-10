@@ -5,6 +5,7 @@ build:
     - GOPATH=/drone
     - GO15VENDOREXPERIMENT=1
   commands:
+    - go get github.com/franela/goblin
     - go get ./...
     - go test ./...
 
