@@ -8,6 +8,7 @@ build:
     - go get github.com/franela/goblin
     - go get ./...
     - go test ./...
+    - go build
 
 publish:
   docker:
