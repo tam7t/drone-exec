@@ -5,9 +5,12 @@ import (
 	"fmt"
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/drone/drone-exec/parser"
 	"github.com/drone/drone-plugin-go/plugin"
+	yamljson "github.com/ghodss/yaml"
 	"github.com/samalba/dockerclient"
+	"gopkg.in/yaml.v2"
 )
 
 // helper function that converts the build step to
@@ -97,10 +100,22 @@ func toCommand(s *State, n *parser.DockerNode) []string {
 		Job:       s.Job,
 		Vargs:     n.Vargs,
 	}
+
+	y, err := yaml.Marshal(n.Vargs)
+	if err != nil {
+		log.Debug(err)
+	}
+	p.Vargs = map[string]interface{}{}
+	err = yamljson.Unmarshal(y, &p.Vargs)
+	if err != nil {
+		log.Debug(err)
+	}
+
 	p.System = &plugin.System{
 		Version: s.System.Version,
 		Link:    s.System.Link,
 	}
+
 	b, _ := json.Marshal(p)
 	return []string{"--", string(b)}
 }
