@@ -4,6 +4,9 @@ build:
   environment:
     - GOPATH=/drone
     - GO15VENDOREXPERIMENT=1
+    - GOOS=linux
+    - GOARCH=amd64
+    - CGO_ENABLED=0
   commands:
     - go get github.com/franela/goblin
     - go get ./...
