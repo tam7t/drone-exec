@@ -31,7 +31,7 @@ func isMatch(node *parser.FilterNode, s *State) bool {
 		matchMatrix(node.Matrix, s.Job.Environment) &&
 		matchRepo(node.Repo, s.Repo.FullName) &&
 		matchSuccess(node.Success, s.Job.Status) &&
-		matchFailure(node.Success, s.Job.Status) &&
+		matchFailure(node.Failure, s.Job.Status) &&
 		matchChange(node.Change, s.Job.Status, last) &&
 		matchEvent(node.Event, event)
 }
@@ -102,7 +102,7 @@ func matchFailure(toggle, status string) bool {
 	if err != nil {
 		return true
 	}
-	return ok && status != plugin.StateSuccess
+	return ok && status != plugin.StateSuccess && status != plugin.StateRunning
 }
 
 func matchChange(toggle, status, last string) bool {
