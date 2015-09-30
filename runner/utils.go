@@ -3,6 +3,7 @@ package runner
 import (
 	"encoding/json"
 	"fmt"
+	"regexp"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -12,6 +13,8 @@ import (
 	"github.com/samalba/dockerclient"
 	"gopkg.in/yaml.v2"
 )
+
+var pullRegexp = regexp.MustCompile("\\d+")
 
 // helper function that converts the build step to
 // a containerConfig for use with the dockerclient
@@ -66,19 +69,19 @@ func toEnv(s *State) []string {
 	// environment variables specific to the build
 	envs = append(envs, fmt.Sprintf("DRONE_BUILD_NUMBER=%d", s.Build.Number))
 	envs = append(envs, fmt.Sprintf("DRONE_BUILD_DIR=%s", s.Workspace.Path))
-	envs = append(envs, fmt.Sprintf("DRONE_BRANCH=%s", s.Build.Commit.Branch))
-	envs = append(envs, fmt.Sprintf("DRONE_COMMIT=%s", s.Build.Commit.Sha))
-	envs = append(envs, fmt.Sprintf("CI_BRANCH=%s", s.Build.Commit.Branch))
+	envs = append(envs, fmt.Sprintf("DRONE_BRANCH=%s", s.Build.Branch))
+	envs = append(envs, fmt.Sprintf("DRONE_COMMIT=%s", s.Build.Commit))
+	envs = append(envs, fmt.Sprintf("CI_BRANCH=%s", s.Build.Branch))
 	envs = append(envs, fmt.Sprintf("CI_BUILD_DIR=%s", s.Workspace.Path))
 	envs = append(envs, fmt.Sprintf("CI_BUILD_NUMBER=%d", s.Build.Number))
-	envs = append(envs, fmt.Sprintf("CI_COMMIT=%s", s.Build.Commit.Sha))
+	envs = append(envs, fmt.Sprintf("CI_COMMIT=%s", s.Build.Commit))
 
 	envs = append(envs, fmt.Sprintf("CI_BUILD_URL=%s/%s/%d", s.System.Link, s.Repo.FullName, s.Build.Number))
 
 	// environment variables specific to the pull request
-	if s.Build.PullRequest != nil {
-		envs = append(envs, fmt.Sprintf("CI_PULL_REQUEST=%d", s.Build.PullRequest.Number))
-		envs = append(envs, fmt.Sprintf("DRONE_PULL_REQUEST=%d", s.Build.PullRequest.Number))
+	if s.Build.Event == plugin.EventPull {
+		envs = append(envs, fmt.Sprintf("CI_PULL_REQUEST=%d", pullRegexp.FindString(s.Build.Ref)))
+		envs = append(envs, fmt.Sprintf("DRONE_PULL_REQUEST=%d", pullRegexp.FindString(s.Build.Ref)))
 	}
 
 	// environment variables for the current matrix axis

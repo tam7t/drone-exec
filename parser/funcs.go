@@ -59,7 +59,7 @@ func ImageMatch(n Node, patterns []string) error {
 	case NodeBuild, NodeCompose:
 		return nil
 	}
-	if len(patterns) == 0 {
+	if len(patterns) == 0 || patterns[0] == "" {
 		patterns = []string{DefaultMatch}
 	}
 	match := false
@@ -143,6 +143,7 @@ func Escalate(n Node) error {
 		d.Volumes = nil
 		d.Net = ""
 		d.Entrypoint = []string{}
+		//d.Volumes = []string{"/lib/modules:/lib/modules"}
 	}
 	return nil
 }

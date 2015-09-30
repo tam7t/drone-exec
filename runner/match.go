@@ -13,27 +13,18 @@ import (
 // all criteria is matched.
 func isMatch(node *parser.FilterNode, s *State) bool {
 
-	// TODO this code should be stored inside the
-	// build object itself. So we need to add
-	// to the database
-	event := "push"
-	if s.Build.PullRequest != nil {
-		event = "pull_request"
-	} else if strings.HasPrefix(s.Build.Commit.Ref, "refs/tags") {
-		event = "tag"
-	}
 	var last string
 	if s.BuildLast != nil {
 		last = s.BuildLast.Status
 	}
 
-	return matchBranch(node.Branch, s.Build.Commit.Branch) &&
+	return matchBranch(node.Branch, s.Build.Branch) &&
 		matchMatrix(node.Matrix, s.Job.Environment) &&
 		matchRepo(node.Repo, s.Repo.FullName) &&
 		matchSuccess(node.Success, s.Job.Status) &&
 		matchFailure(node.Failure, s.Job.Status) &&
 		matchChange(node.Change, s.Job.Status, last) &&
-		matchEvent(node.Event, event)
+		matchEvent(node.Event, s.Build.Event)
 }
 
 // matchBranch is a helper function that returns true

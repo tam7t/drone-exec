@@ -12,6 +12,7 @@ import (
 	"github.com/drone/drone-exec/docker"
 	"github.com/drone/drone-exec/parser"
 	"github.com/drone/drone-exec/runner"
+	"github.com/drone/drone-exec/yaml"
 	"github.com/drone/drone-exec/yaml/inject"
 	"github.com/drone/drone-exec/yaml/path"
 	"github.com/drone/drone-exec/yaml/secure"
@@ -41,6 +42,8 @@ var payload = struct {
 	Build     *plugin.Build     `json:"build"`
 	BuildLast *plugin.Build     `json:"build_last"`
 	Job       *plugin.Job       `json:"job"`
+	Netrc     *plugin.Netrc     `json:"netrc"`
+	Keys      *plugin.Keypair   `json:"keys"`
 	System    *plugin.System    `json:"system"`
 	Workspace *plugin.Workspace `json:"workspace"`
 }{}
@@ -63,14 +66,14 @@ func main() {
 
 	// configure the default log format and
 	// log levels
-	if debug {
+	if yaml.ParseDebugString(payload.Yaml) {
 		log.SetLevel(log.DebugLevel)
 	}
 
 	var sec *secure.Secure
-	if payload.Workspace.Keys != nil {
+	if payload.Keys != nil && len(payload.YamlEnc) != 0 {
 		var err error
-		sec, err = secure.Parse(payload.YamlEnc, payload.Workspace.Keys.Private)
+		sec, err = secure.Parse(payload.YamlEnc, payload.Keys.Private)
 		if err != nil {
 			log.Debugln("Unable to decrypt encrypted secrets", err)
 		} else {
@@ -86,12 +89,12 @@ func main() {
 		// the checksum should be invalidated if the repository is
 		// public, and the build is a pull request, and the checksum
 		// value was not provided.
-		if plugin.IsPullRequest(payload.Build) && !payload.Repo.Private && len(sec.Checksum) == 0 {
+		if payload.Build.Event == plugin.EventPull && !payload.Repo.IsPrivate && len(sec.Checksum) == 0 {
 			verified = false
 		}
 
 		switch {
-		case verified && plugin.IsPullRequest(payload.Build):
+		case verified && payload.Build.Event == plugin.EventPull:
 			log.Debugln("Injected secrets into Yaml safely")
 			var err error
 			payload.Yaml, err = inject.InjectSafe(payload.Yaml, sec.Environment.Map())
@@ -116,14 +119,15 @@ func main() {
 	// into the yaml prior to parsing.
 	payload.Yaml = inject.Inject(payload.Yaml, payload.Job.Environment)
 	payload.Yaml = inject.Inject(payload.Yaml, map[string]string{
-		"COMMIT":       payload.Build.Commit.Sha[:7],
-		"BRANCH":       payload.Build.Commit.Branch,
+		"COMMIT":       payload.Build.Commit[:7],
+		"BRANCH":       payload.Build.Branch,
 		"BUILD_NUMBER": strconv.Itoa(payload.Build.Number),
 	})
 
 	// extracts the clone path from the yaml. If
 	// the clone path doesn't exist it uses a path
 	// derrived from the repository uri.
+	payload.Workspace = &plugin.Workspace{Keys: payload.Keys, Netrc: payload.Netrc}
 	payload.Workspace.Path = path.Parse(payload.Yaml, payload.Repo.Link)
 	payload.Workspace.Root = "/drone/src"
 
@@ -131,7 +135,7 @@ func main() {
 		parser.ImageName,
 		parser.ImageMatchFunc(payload.System.Plugins),
 		parser.ImagePullFunc(force),
-		parser.SanitizeFunc(payload.Repo.Trusted), //&& !plugin.PullRequest(payload.Build)
+		parser.SanitizeFunc(payload.Repo.IsTrusted), //&& !plugin.PullRequest(payload.Build)
 		parser.CacheFunc(payload.Repo.FullName),
 		parser.Escalate,
 	}
