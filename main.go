@@ -129,10 +129,10 @@ func main() {
 	var globals = map[string]string{}
 	for _, s := range payload.System.Globals {
 		parts := strings.SplitN(s, "=", 2)
-		if !strings.HasPrefix(s, "PLUGIN_") || len(parts) != 2 {
+		if len(parts) != 2 {
 			continue
 		}
-		globals[parts[0][7:]] = parts[1]
+		globals[parts[0]] = parts[1]
 	}
 	payload.Yaml, _ = inject.InjectSafe(payload.Yaml, globals)
 
