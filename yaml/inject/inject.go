@@ -13,7 +13,7 @@ import (
 // Parameters are represented in the string using $$ notation, similar
 // to how environment variables are defined in Makefiles.
 func Inject(raw string, params map[string]string) string {
-	if params == nil {
+	if params == nil || len(params) == 0 {
 		return raw
 	}
 	keys := []string{}
@@ -36,6 +36,9 @@ func Inject(raw string, params map[string]string) string {
 // We want to avoid a malicious pull request that allows someone
 // to inject and print private variables.
 func InjectSafe(raw string, params map[string]string) (string, error) {
+	if params == nil || len(params) == 0 {
+		return raw, nil
+	}
 	before, err := parse(raw)
 	if err != nil {
 		return raw, err

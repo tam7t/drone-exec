@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"strings"
 	"syscall"
 	"time"
 
@@ -123,6 +124,17 @@ func main() {
 		"BRANCH":       payload.Build.Branch,
 		"BUILD_NUMBER": strconv.Itoa(payload.Build.Number),
 	})
+
+	// safely inject global variables
+	var globals = map[string]string{}
+	for _, s := range payload.System.Globals {
+		parts := strings.SplitN(s, "=", 2)
+		if !strings.HasPrefix(s, "PLUGIN_") || len(parts) != 2 {
+			continue
+		}
+		globals[parts[0][7:]] = parts[1]
+	}
+	payload.Yaml, _ = inject.InjectSafe(payload.Yaml, globals)
 
 	// extracts the clone path from the yaml. If
 	// the clone path doesn't exist it uses a path
