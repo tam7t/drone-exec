@@ -150,6 +150,7 @@ func main() {
 		parser.SanitizeFunc(payload.Repo.IsTrusted), //&& !plugin.PullRequest(payload.Build)
 		parser.CacheFunc(payload.Repo.FullName),
 		parser.Escalate,
+		parser.HttpProxy,
 	}
 	tree, err := parser.Parse(payload.Yaml, rules)
 	if err != nil {

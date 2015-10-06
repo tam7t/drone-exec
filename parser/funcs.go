@@ -3,6 +3,7 @@ package parser
 import (
 	"errors"
 	"fmt"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -144,6 +145,23 @@ func Escalate(n Node) error {
 		d.Net = ""
 		d.Entrypoint = []string{}
 		//d.Volumes = []string{"/lib/modules:/lib/modules"}
+	}
+	return nil
+}
+
+// HttpProxy injects the HTTP_PROXY and HTTPS_PROXY environment
+// variables into the container.
+func HttpProxy(n Node) error {
+	d, ok := n.(*DockerNode)
+	if !ok {
+		return nil
+	}
+	for _, env := range os.Environ() {
+		if strings.HasPrefix(env, "HTTP_PROXY") ||
+			strings.HasPrefix(env, "HTTPS_PROXY") ||
+			strings.HasPrefix(env, "NO_PROXY") {
+			d.Environment = append(d.Environment, env)
+		}
 	}
 	return nil
 }

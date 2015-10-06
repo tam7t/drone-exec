@@ -84,13 +84,15 @@ func Run(client dockerclient.Client, conf *dockerclient.ContainerConfig, pull bo
 func Start(client dockerclient.Client, conf *dockerclient.ContainerConfig, pull bool) (*dockerclient.ContainerInfo, error) {
 	// force-pull the image if specified.
 	if pull {
-		log.Debugf("Pulling image %s", conf.Image)
+		log.Printf("Pulling image %s", conf.Image)
 		client.PullImage(conf.Image, nil)
 	}
 
 	// attempts to create the contianer
 	id, err := client.CreateContainer(conf, "")
 	if err != nil {
+		log.Printf("Pulling image %s", conf.Image)
+
 		// and pull the image and re-create if that fails
 		err = client.PullImage(conf.Image, nil)
 		if err != nil {
