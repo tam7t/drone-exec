@@ -157,9 +157,10 @@ func HttpProxy(n Node) error {
 		return nil
 	}
 	for _, env := range os.Environ() {
-		if strings.HasPrefix(env, "HTTP_PROXY") ||
-			strings.HasPrefix(env, "HTTPS_PROXY") ||
-			strings.HasPrefix(env, "NO_PROXY") {
+		envup := strings.ToUpper(env)
+		if strings.HasPrefix(envup, "HTTP_PROXY") ||
+			strings.HasPrefix(envup, "HTTPS_PROXY") ||
+			strings.HasPrefix(envup, "NO_PROXY") {
 			d.Environment = append(d.Environment, env)
 		}
 	}
