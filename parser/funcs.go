@@ -149,6 +149,37 @@ func Escalate(n Node) error {
 	return nil
 }
 
+func DefaultNotifyFilter(n Node) error {
+	f, ok := n.(*FilterNode)
+	if !ok || f.Node == nil {
+		return nil
+	}
+
+	d, ok := f.Node.(*DockerNode)
+	if !ok {
+		return nil
+	}
+	if d.NodeType != NodeNotify {
+		return nil
+	}
+	empty := len(f.Success) == 0 &&
+		len(f.Failure) == 0 &&
+		len(f.Change) == 0
+
+	if !empty {
+		if len(f.Success) == 0 {
+			f.Success = "false"
+		}
+		if len(f.Failure) == 0 {
+			f.Failure = "false"
+		}
+		if len(f.Change) == 0 {
+			f.Change = "false"
+		}
+	}
+	return nil
+}
+
 // HttpProxy injects the HTTP_PROXY and HTTPS_PROXY environment
 // variables into the container.
 func HttpProxy(n Node) error {

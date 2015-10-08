@@ -43,6 +43,16 @@ func TestParse(t *testing.T) {
 		g.It("Should not notify on change when no change", func() {
 			g.Assert(matchChange("true", "success", "success")).Equal(false)
 		})
+
+		g.It("Should notify on success", func() {
+			g.Assert(matchSuccess("true", "success")).Equal(true)
+			g.Assert(matchSuccess("true", "running")).Equal(true)
+			g.Assert(matchSuccess("", "success")).Equal(true)
+			g.Assert(matchSuccess("", "running")).Equal(true)
+			g.Assert(matchSuccess("false", "success")).Equal(false)
+			g.Assert(matchSuccess("false", "running")).Equal(false)
+		})
+
 	})
 
 }

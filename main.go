@@ -151,6 +151,7 @@ func main() {
 		parser.CacheFunc(payload.Repo.FullName),
 		parser.Escalate,
 		parser.HttpProxy,
+		parser.DefaultNotifyFilter,
 	}
 	tree, err := parser.Parse(payload.Yaml, rules)
 	if err != nil {
