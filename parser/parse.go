@@ -89,6 +89,14 @@ func (t *Tree) appendPlugin(typ NodeType, plugins ...yaml.Plugin) error {
 		}
 		fnode := newFilterNode(plugin)
 		fnode.Node = node
+		// TODO: we should apply rules to all nodes in
+		// the tree AFTER the entire tree is constructed.
+		for _, rule := range t.rules {
+			err := rule(fnode)
+			if err != nil {
+				return err
+			}
+		}
 		t.Root.append(fnode)
 	}
 	return nil
