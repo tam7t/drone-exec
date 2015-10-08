@@ -31,15 +31,14 @@ func isMatch(node *parser.FilterNode, s *State) bool {
 // if all_branches is true. Else it returns false if a
 // branch condition is specified, and the branch does
 // not match.
-func matchBranch(want, got string) bool {
-	if len(want) == 0 {
+func matchBranch(pattern, got string) bool {
+	if len(pattern) == 0 {
 		return true
 	}
-	if strings.HasPrefix(got, "refs/heads/") {
+	if strings.HasPrefix(branch, "refs/heads/") {
 		got = got[11:]
 	}
-	match, _ := path.Match(want, got)
-	return match
+	return isMatch(pattern, got)
 }
 
 // matchRepo is a helper function that returns false
@@ -116,4 +115,16 @@ func parseBool(str string) (value bool, err error) {
 		return false, nil
 	}
 	return false, fmt.Errorf("Error parsing boolean %s", str)
+}
+
+func isMatch(pattern, str string) bool {
+	negate := strings.HasPrefix(pattern, "!")
+	if negate {
+		pattern = pattern[1:]
+	}
+	match, _ := path.Match(pattern, str)
+	if negate {
+		match = !match
+	}
+	return match
 }
