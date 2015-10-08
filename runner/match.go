@@ -11,20 +11,24 @@ import (
 
 // isMatch is a helper function that returns true if
 // all criteria is matched.
-func isMatch(node *parser.FilterNode, s *State) bool {
+func isMatch(node *parser.FilterNode, s *State) (match bool) {
 
 	var last string
 	if s.BuildLast != nil {
 		last = s.BuildLast.Status
 	}
 
-	return matchBranch(node.Branch, s.Build.Branch) &&
+	match = matchBranch(node.Branch, s.Build.Branch) &&
 		matchMatrix(node.Matrix, s.Job.Environment) &&
 		matchRepo(node.Repo, s.Repo.FullName) &&
-		matchSuccess(node.Success, s.Job.Status) &&
-		matchFailure(node.Failure, s.Job.Status) &&
-		matchChange(node.Change, s.Job.Status, last) &&
 		matchEvent(node.Event, s.Build.Event)
+	if !match {
+		return
+	}
+
+	return matchSuccess(node.Success, s.Job.Status) ||
+		matchFailure(node.Failure, s.Job.Status) ||
+		matchChange(node.Change, s.Job.Status, last)
 }
 
 // matchBranch is a helper function that returns true

@@ -34,6 +34,15 @@ func TestParse(t *testing.T) {
 		g.It("Should not match a branch with negation", func() {
 			g.Assert(matchBranch("!master", "master")).Equal(false)
 		})
+
+		g.It("Should notify on change", func() {
+			g.Assert(matchChange("true", "success", "failure")).Equal(true)
+			g.Assert(matchChange("true", "running", "failure")).Equal(true)
+		})
+
+		g.It("Should not notify on change when no change", func() {
+			g.Assert(matchChange("true", "success", "success")).Equal(false)
+		})
 	})
 
 }
