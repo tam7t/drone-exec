@@ -35,10 +35,10 @@ func matchBranch(pattern, got string) bool {
 	if len(pattern) == 0 {
 		return true
 	}
-	if strings.HasPrefix(branch, "refs/heads/") {
+	if strings.HasPrefix(got, "refs/heads/") {
 		got = got[11:]
 	}
-	return isMatch(pattern, got)
+	return matchPath(pattern, got)
 }
 
 // matchRepo is a helper function that returns false
@@ -117,7 +117,7 @@ func parseBool(str string) (value bool, err error) {
 	return false, fmt.Errorf("Error parsing boolean %s", str)
 }
 
-func isMatch(pattern, str string) bool {
+func matchPath(pattern, str string) bool {
 	negate := strings.HasPrefix(pattern, "!")
 	if negate {
 		pattern = pattern[1:]
