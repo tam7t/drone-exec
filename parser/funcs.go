@@ -192,7 +192,7 @@ func HttpProxy(n Node) error {
 		if strings.HasPrefix(envup, "HTTP_PROXY") ||
 			strings.HasPrefix(envup, "HTTPS_PROXY") ||
 			strings.HasPrefix(envup, "NO_PROXY") {
-			d.Environment = append(d.Environment, env)
+			d.Environment = append([]string{env}, d.Environment...)
 		}
 	}
 	return nil

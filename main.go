@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"fmt"
 	"os"
@@ -70,6 +71,7 @@ func main() {
 	if yaml.ParseDebugString(payload.Yaml) {
 		log.SetLevel(log.DebugLevel)
 	}
+	log.SetFormatter(new(formatter))
 
 	var sec *secure.Secure
 	if payload.Keys != nil && len(payload.YamlEnc) != 0 {
@@ -260,4 +262,12 @@ func main() {
 		controller.Destroy()
 		os.Exit(state.ExitCode())
 	}
+}
+
+type formatter struct{}
+
+func (f *formatter) Format(entry *log.Entry) ([]byte, error) {
+	buf := &bytes.Buffer{}
+	fmt.Fprintf(buf, "[%s] %s", entry.Level, entry.Message)
+	return buf.Bytes(), nil
 }
