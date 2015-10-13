@@ -268,6 +268,6 @@ type formatter struct{}
 
 func (f *formatter) Format(entry *log.Entry) ([]byte, error) {
 	buf := &bytes.Buffer{}
-	fmt.Fprintf(buf, "[%s] %s", entry.Level, entry.Message)
+	fmt.Fprintf(buf, "[%s] %s\n", entry.Level.String(), entry.Message)
 	return buf.Bytes(), nil
 }

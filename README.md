@@ -16,7 +16,7 @@ go test ./...
 You can run the program locally for testing purposes. The build details are provided to the program via a JSON payload as seen below:
 
 ```sh
-./drone-exec --debug --cache --clone --build <<EOF
+./drone-exec --debug --pull --cache --clone --build <<EOF
 {
 	"system": {
 		"link": "http://localhost:8000"
@@ -31,11 +31,9 @@ You can run the program locally for testing purposes. The build details are prov
 	},
 	"build": {
 		"number": 1,
-		"head_commit": {
-			"ref": "refs/heads/master",
-			"sha": "d8dbe4d94f15fe89232e0402c6e8a0ddf21af3ab",
-			"branch": "master"
-		}
+		"ref": "refs/heads/master",
+		"commit": "d8dbe4d94f15fe89232e0402c6e8a0ddf21af3ab",
+		"branch": "master"
 	},
 	"job": {
 		"environment": {}
