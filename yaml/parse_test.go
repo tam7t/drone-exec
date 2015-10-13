@@ -91,7 +91,7 @@ func TestParse(t *testing.T) {
 
 		g.It("Should parse plugin filters", func() {
 			s := conf.Deploy.Slice()
-			g.Assert(s[0].Filter.Branch).Equal("master")
+			g.Assert(s[0].Filter.Branch.Slice()).Equal([]string{"master"})
 			g.Assert(s[1].Filter.Repo).Equal("octocat/helloworld")
 			g.Assert(s[1].Filter.Matrix).Equal(map[string]string{"go_version": "1.5"})
 		})
