@@ -45,14 +45,20 @@ func isMatch(node *parser.FilterNode, s *State) (match bool) {
 // if all_branches is true. Else it returns false if a
 // branch condition is specified, and the branch does
 // not match.
-func matchBranch(pattern, got string) bool {
-	if len(pattern) == 0 {
+func matchBranch(want []string, got string) (match bool) {
+	if len(want) == 0 {
 		return true
 	}
 	if strings.HasPrefix(got, "refs/heads/") {
 		got = got[11:]
 	}
-	return matchPath(pattern, got)
+	for _, pattern := range want {
+		if matchPath(pattern, got) {
+			match = true
+			break
+		}
+	}
+	return
 }
 
 // matchRepo is a helper function that returns false
@@ -72,11 +78,17 @@ func matchRepo(want, got string) bool {
 // if this task is only intended for a specific repository
 // event not matched by the current build. For example,
 // only executing a build for `tags` or `pull_requests`
-func matchEvent(want, got string) bool {
+func matchEvent(want []string, got string) (match bool) {
 	if len(want) == 0 {
 		return true
 	}
-	return got == want
+	for _, want_ := range want {
+		if got == want_ {
+			match = true
+			break
+		}
+	}
+	return
 }
 
 // matchMatrix is a helper function that returns false

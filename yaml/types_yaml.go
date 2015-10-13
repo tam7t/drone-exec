@@ -62,6 +62,52 @@ func (s *MapEqualSlice) Slice() []string {
 	return s.parts
 }
 
+// Stringorslice represents a string or an array of strings.
+// TODO use docker/docker/pkg/stringutils.StrSlice once 1.9.x is released.
+type Stringorslice struct {
+	parts []string
+}
+
+// MarshalYAML implements the Marshaller interface.
+func (s Stringorslice) MarshalYAML() (interface{}, error) {
+	return s.parts, nil
+}
+
+// UnmarshalYAML implements the Unmarshaller interface.
+func (s *Stringorslice) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	var sliceType []string
+	err := unmarshal(&sliceType)
+	if err == nil {
+		s.parts = sliceType
+		return nil
+	}
+
+	var stringType string
+	err = unmarshal(&stringType)
+	if err == nil {
+		sliceType = make([]string, 0, 1)
+		s.parts = append(sliceType, string(stringType))
+		return nil
+	}
+	return err
+}
+
+// Len returns the number of parts of the Stringorslice.
+func (s *Stringorslice) Len() int {
+	if s == nil {
+		return 0
+	}
+	return len(s.parts)
+}
+
+// Slice gets the parts of the StrSlice as a Slice of string.
+func (s *Stringorslice) Slice() []string {
+	if s == nil {
+		return nil
+	}
+	return s.parts
+}
+
 // Pluginslice is a slice of Plugins with a custom Yaml
 // unarmshal function to preserve ordering.
 type Pluginslice struct {

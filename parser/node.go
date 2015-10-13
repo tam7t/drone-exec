@@ -95,8 +95,8 @@ type FilterNode struct {
 	NodeType
 
 	Repo    string
-	Branch  string
-	Event   string
+	Branch  []string
+	Event   []string
 	Success string
 	Failure string
 	Change  string
@@ -109,8 +109,8 @@ func newFilterNode(p yaml.Plugin) *FilterNode {
 	return &FilterNode{
 		NodeType: NodeFilter,
 		Repo:     p.Filter.Repo,
-		Branch:   p.Filter.Branch,
-		Event:    p.Filter.Event,
+		Branch:   p.Filter.Branch.Slice(),
+		Event:    p.Filter.Event.Slice(),
 		Matrix:   p.Filter.Matrix,
 		Success:  p.Filter.Success,
 		Failure:  p.Filter.Failure,

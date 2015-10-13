@@ -12,27 +12,31 @@ func TestParse(t *testing.T) {
 	g.Describe("Yaml conditions", func() {
 
 		g.It("Should match a branch", func() {
-			g.Assert(matchBranch("master", "master")).Equal(true)
+			g.Assert(matchBranch([]string{"master"}, "master")).Equal(true)
 		})
 
 		g.It("Should match a branch wildcard", func() {
-			g.Assert(matchBranch("*", "master")).Equal(true)
+			g.Assert(matchBranch([]string{"*"}, "master")).Equal(true)
 		})
 
 		g.It("Should match a branch with negation", func() {
-			g.Assert(matchBranch("!dev", "master")).Equal(true)
+			g.Assert(matchBranch([]string{"!dev"}, "master")).Equal(true)
 		})
 
-		g.It("Should match when branch is empty", func() {
-			g.Assert(matchBranch("", "master")).Equal(true)
+		g.It("Should match when branch slice is empty", func() {
+			g.Assert(matchBranch([]string{}, "master")).Equal(true)
+		})
+
+		g.It("Should match when branch matches one of", func() {
+			g.Assert(matchBranch([]string{"dev", "master"}, "master")).Equal(true)
 		})
 
 		g.It("Should not match a branch", func() {
-			g.Assert(matchBranch("dev", "master")).Equal(false)
+			g.Assert(matchBranch([]string{"dev"}, "master")).Equal(false)
 		})
 
 		g.It("Should not match a branch with negation", func() {
-			g.Assert(matchBranch("!master", "master")).Equal(false)
+			g.Assert(matchBranch([]string{"!master"}, "master")).Equal(false)
 		})
 
 		g.It("Should notify on change", func() {

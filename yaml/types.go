@@ -54,8 +54,8 @@ type Vargs map[string]interface{}
 // plugin should be executed or skipped.
 type Filter struct {
 	Repo    string
-	Branch  string
-	Event   string
+	Branch  Stringorslice
+	Event   Stringorslice
 	Success string
 	Failure string
 	Change  string
