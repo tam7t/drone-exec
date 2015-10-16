@@ -33,7 +33,15 @@ func ImageName(n Node) error {
 	}
 
 	switch d.NodeType {
-	case NodeBuild, NodeCompose:
+	case NodeCompose:
+		break
+	case NodeBuild:
+		// some projects may use drone solely for deployments
+		// and therefore have no build section. Only enforce
+		// the image if commands exist.
+		if len(d.Image) == 0 && len(d.Commands) == 0 {
+			return nil
+		}
 		break
 	case NodeClone:
 		d.Image = expandImageDefault(d.Image, DefaultCloner)
