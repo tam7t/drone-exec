@@ -39,11 +39,11 @@ chmod 0600 $HOME/.netrc
 // the build script to add the id_rsa key to clone
 // private repositories.
 const keyScript = `
-mkdir -p $HOME/.ssh
+mkdir -p -m 0700 $HOME/.ssh
 cat <<EOF > $HOME/.ssh/id_rsa
 %s
 EOF
-chmod 0600 $HOME/.ssh
+chmod 0600 $HOME/.ssh/id_rsa
 `
 
 // keyConfScript is a helper script that is added
