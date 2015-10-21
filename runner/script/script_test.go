@@ -82,11 +82,11 @@ export PATH=$PATH:$GOBIN
 
 set -e
 
-mkdir -p $HOME/.ssh
+mkdir -p -m 0700 $HOME/.ssh
 cat <<EOF > $HOME/.ssh/id_rsa
 -----BEGIN RSA PRIVATE KEY----- MIIEpQIBAAKCAQEA3Tz2...
 EOF
-chmod 0600 $HOME/.ssh
+chmod 0600 $HOME/.ssh/id_rsa
 
 cat <<EOF > $HOME/.ssh/config
 StrictHostKeyChecking no
