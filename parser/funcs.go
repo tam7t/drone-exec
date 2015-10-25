@@ -226,6 +226,24 @@ func CacheFunc(dir string) RuleFunc {
 	}
 }
 
+func Mount(n Node, from, to string) error {
+	d, ok := n.(*DockerNode)
+	if !ok {
+		return nil
+	}
+	if d.NodeType == NodeBuild {
+		dir := fmt.Sprintf("%s:%s", from, to)
+		d.Volumes = []string{dir}
+	}
+	return nil
+}
+
+func MountFunc(from, to string) RuleFunc {
+	return func(n Node) error {
+		return Mount(n, from, to)
+	}
+}
+
 // expandImage expands an alias plugin name to use a
 // fully qualified image name.
 func expandImage(image string) string {

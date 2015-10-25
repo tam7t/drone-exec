@@ -26,13 +26,14 @@ import (
 )
 
 var (
-	cache  bool // execute cache steps
-	clone  bool // execute clone steps
-	build  bool // execute build steps
-	deploy bool // execute deploy steps
-	notify bool // execute notify steps
-	debug  bool // execute in debug mode
-	force  bool // force pull plugin images
+	cache  bool   // execute cache steps
+	clone  bool   // execute clone steps
+	build  bool   // execute build steps
+	deploy bool   // execute deploy steps
+	notify bool   // execute notify steps
+	debug  bool   // execute in debug mode
+	force  bool   // force pull plugin images
+	mount  string // mounts the volume on the host machine
 )
 
 // payload defines the raw plugin payload that
@@ -60,6 +61,7 @@ func main() {
 	flag.BoolVar(&notify, "notify", false, "")
 	flag.BoolVar(&debug, "debug", false, "")
 	flag.BoolVar(&force, "pull", false, "")
+	flag.StringVar(&mount, "mount", "", "")
 	flag.Parse()
 
 	// unmarshal the json payload via stdin or
@@ -144,6 +146,7 @@ func main() {
 	payload.Workspace = &plugin.Workspace{Keys: payload.Keys, Netrc: payload.Netrc}
 	payload.Workspace.Path = path.Parse(payload.Yaml, payload.Repo.Link)
 	payload.Workspace.Root = "/drone/src"
+	log.Debugf("Using workspace %s", payload.Workspace.Path)
 
 	rules := []parser.RuleFunc{
 		parser.ImageName,
@@ -154,6 +157,16 @@ func main() {
 		parser.Escalate,
 		parser.HttpProxy,
 		parser.DefaultNotifyFilter,
+	}
+	if len(mount) != 0 {
+		log.Debugf("Mounting %s as workspace %s",
+			mount,
+			payload.Workspace.Path,
+		)
+		rules = append(rules, parser.MountFunc(
+			mount,
+			payload.Workspace.Path,
+		))
 	}
 	tree, err := parser.Parse(payload.Yaml, rules)
 	if err != nil {
@@ -213,18 +226,21 @@ func main() {
 		Workspace: payload.Workspace,
 	}
 	if cache {
+		log.Debugln("Running Cache step")
 		err = r.RunNode(state, parser.NodeCache)
 		if err != nil {
 			log.Debugln(err)
 		}
 	}
 	if clone {
+		log.Debugln("Running Clone step")
 		err = r.RunNode(state, parser.NodeClone)
 		if err != nil {
 			log.Debugln(err)
 		}
 	}
 	if build && !state.Failed() {
+		log.Debugln("Running Build and Compose steps")
 		err = r.RunNode(state, parser.NodeCompose|parser.NodeBuild)
 		if err != nil {
 			log.Debugln(err)
@@ -232,6 +248,7 @@ func main() {
 	}
 
 	if deploy && !state.Failed() {
+		log.Debugln("Running Publish and Deploy steps")
 		err = r.RunNode(state, parser.NodePublish|parser.NodeDeploy)
 		if err != nil {
 			log.Debugln(err)
@@ -246,12 +263,14 @@ func main() {
 	}
 
 	if cache {
+		log.Debugln("Running post-Build Cache steps")
 		err = r.RunNode(state, parser.NodeCache)
 		if err != nil {
 			log.Debugln(err)
 		}
 	}
 	if notify {
+		log.Debugln("Running Notify steps")
 		err = r.RunNode(state, parser.NodeNotify)
 		if err != nil {
 			log.Debugln(err)
