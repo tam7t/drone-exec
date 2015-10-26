@@ -89,6 +89,12 @@ func toEnv(s *State) []string {
 		envs = append(envs, fmt.Sprintf("%s=%s", key, val))
 	}
 
+	if s.Build.Event == plugin.EventTag {
+		tag := strings.TrimPrefix(s.Build.Ref, "refs/tags/")
+		envs = append(envs, fmt.Sprintf("CI_TAG=%d", tag))
+		envs = append(envs, fmt.Sprintf("DRONE_TAG=%s", tag))
+	}
+
 	return envs
 }
 
