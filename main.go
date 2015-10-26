@@ -122,12 +122,16 @@ func main() {
 
 	// injects the matrix configuration parameters
 	// into the yaml prior to parsing.
-	payload.Yaml = inject.Inject(payload.Yaml, payload.Job.Environment)
-	payload.Yaml = inject.Inject(payload.Yaml, map[string]string{
+	injectParams := map[string]string{
 		"COMMIT":       payload.Build.Commit[:7],
 		"BRANCH":       payload.Build.Branch,
 		"BUILD_NUMBER": strconv.Itoa(payload.Build.Number),
-	})
+	}
+	if payload.Build.Event == plugin.EventTag {
+		injectParams["TAG"] = strings.TrimPrefix(payload.Build.Ref, "refs/tags/")
+	}
+	payload.Yaml = inject.Inject(payload.Yaml, payload.Job.Environment)
+	payload.Yaml = inject.Inject(payload.Yaml, injectParams)
 
 	// safely inject global variables
 	var globals = map[string]string{}
