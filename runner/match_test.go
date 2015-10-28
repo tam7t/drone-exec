@@ -57,6 +57,13 @@ func TestParse(t *testing.T) {
 			g.Assert(matchSuccess("false", "running")).Equal(false)
 		})
 
+		g.It("Should not match an event", func() {
+			g.Assert(matchBranch([]string{"production"}, "deployment")).Equal(false)
+		})
+
+		g.It("Should match an event", func() {
+			g.Assert(matchBranch([]string{"deployment"}, "deployment")).Equal(true)
+		})
 	})
 
 }
