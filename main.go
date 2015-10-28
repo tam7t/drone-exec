@@ -123,9 +123,8 @@ func main() {
 	// injects the matrix configuration parameters
 	// into the yaml prior to parsing.
 	injectParams := map[string]string{
-		"SHA":          payload.Build.Commit,
-		"SHA_SHORT":    payload.Build.Commit[:7],
-		"COMMIT":       payload.Build.Commit[:7],
+		"COMMIT_SHORT": payload.Build.Commit[:7],
+		"COMMIT":       payload.Build.Commit,
 		"BRANCH":       payload.Build.Branch,
 		"BUILD_NUMBER": strconv.Itoa(payload.Build.Number),
 	}
