@@ -124,7 +124,7 @@ func expectMatch() {
 func maybeResolveImage() {}
 
 func maybeEscalate(conf dockerclient.ContainerConfig, node *parser.DockerNode) {
-	if node.Image == "plugins/drone-docker" {
+	if node.Image == "plugins/drone-docker" || node.Image == "plugins/drone-gcr" {
 		return
 	}
 	conf.Volumes = nil
@@ -145,5 +145,6 @@ func shouldSkip(flags parser.NodeType, nodeType parser.NodeType) bool {
 // if the plugin should be escalated to start the container
 // in privileged mode.
 func shouldEscalate(node *parser.DockerNode) bool {
-	return node.Image == "plugins/drone-docker"
+	return node.Image == "plugins/drone-docker" ||
+		node.Image == "plugins/drone-gcr"
 }

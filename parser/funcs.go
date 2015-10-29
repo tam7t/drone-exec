@@ -145,8 +145,7 @@ func Escalate(n Node) error {
 		return nil
 	}
 	image := strings.Split(d.Image, ":")
-	if d.NodeType == NodePublish &&
-		image[0] == "plugins/drone-docker" {
+	if d.NodeType == NodePublish && (image[0] == "plugins/drone-docker" || image[0] == "plugins/drone-gcr") {
 
 		d.Privileged = true
 		d.Volumes = nil
