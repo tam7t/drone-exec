@@ -15,7 +15,9 @@ func NewClient(docker dockerclient.Client) (*Client, error) {
 
 	// creates an ambassador container
 	conf := &dockerclient.ContainerConfig{}
-	conf.HostConfig = dockerclient.HostConfig{}
+	conf.HostConfig = dockerclient.HostConfig{
+		MemorySwappiness: -1,
+	}
 	conf.Entrypoint = []string{"/bin/sleep"}
 	conf.Cmd = []string{"86400"}
 	conf.Image = "gliderlabs/alpine:3.1"

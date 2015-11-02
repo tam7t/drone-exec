@@ -25,8 +25,9 @@ func toContainerConfig(n *parser.DockerNode) *dockerclient.ContainerConfig {
 		Cmd:        n.Command,
 		Entrypoint: n.Entrypoint,
 		HostConfig: dockerclient.HostConfig{
-			Privileged:  n.Privileged,
-			NetworkMode: n.Net,
+			Privileged:       n.Privileged,
+			NetworkMode:      n.Net,
+			MemorySwappiness: -1,
 		},
 	}
 
