@@ -31,6 +31,13 @@ func Test_Inject(t *testing.T) {
 			g.Assert(s).Equal(Inject(s, nil))
 		})
 
+		g.It("Should escape quoted variables", func() {
+			s := `echo "$$FOO"`
+			m := map[string]string{}
+			m["FOO"] = "hello\nworld"
+			g.Assert(`echo "hello\nworld"`).Equal(Inject(s, m))
+		})
+
 		g.It("Should safely inject params", func() {
 			m := map[string]string{
 				"TOKEN":  "FOO",
