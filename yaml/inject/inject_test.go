@@ -38,6 +38,13 @@ func Test_Inject(t *testing.T) {
 			g.Assert(`echo "hello\nworld"`).Equal(Inject(s, m))
 		})
 
+		g.It("Should replace variable prefix", func() {
+			s := `echo "$${TAG##v}"`
+			m := map[string]string{}
+			m["TAG"] = "v1.0.0"
+			g.Assert(`echo "1.0.0"`).Equal(Inject(s, m))
+		})
+
 		g.It("Should safely inject params", func() {
 			m := map[string]string{
 				"TOKEN":  "FOO",

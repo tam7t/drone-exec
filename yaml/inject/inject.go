@@ -1,9 +1,7 @@
 package inject
 
 import (
-	"fmt"
 	"sort"
-	"strings"
 
 	"gopkg.in/yaml.v2"
 )
@@ -25,8 +23,10 @@ func Inject(raw string, params map[string]string) string {
 	injected := raw
 	for _, k := range keys {
 		v := params[k]
-		injected = strings.Replace(injected, "\"$$"+k+"\"", fmt.Sprintf("%q", v), -1)
-		injected = strings.Replace(injected, "$$"+k, v, -1)
+
+		for _, substitute := range substitutors {
+			injected = substitute(injected, k, v)
+		}
 	}
 	return injected
 }
