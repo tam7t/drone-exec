@@ -39,6 +39,14 @@ func Test_Inject(t *testing.T) {
 		})
 
 		g.It("Should replace variable prefix", func() {
+			s := `tag: $${TAG=$${SHA:8}}`
+			m := map[string]string{}
+			m["TAG"] = ""
+			m["SHA"] = "f36cbf54ee1a1eeab264c8e388f386218ab1701b"
+			g.Assert("tag: f36cbf54").Equal(Inject(s, m))
+		})
+
+		g.It("Should handle nested substitution operations", func() {
 			s := `echo "$${TAG##v}"`
 			m := map[string]string{}
 			m["TAG"] = "v1.0.0"

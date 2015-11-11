@@ -71,10 +71,3 @@ func Test_Substitution(t *testing.T) {
 		})
 	})
 }
-
-// ${var:pos}
-// ${var:pos:len}
-// ${var/Pattern/Replacement}
-// ${var//Pattern/Replacement}
-// ${var/#Pattern/Replacement}
-// ${var/%Pattern/Replacement}

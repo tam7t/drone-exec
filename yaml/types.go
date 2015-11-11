@@ -22,6 +22,7 @@ type Container struct {
 	Environment MapEqualSlice
 	Entrypoint  Command
 	Command     Command
+	ExtraHosts  []string `yaml:"extra_hosts"`
 	Volumes     []string
 	Net         string
 }

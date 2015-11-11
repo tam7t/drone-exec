@@ -58,6 +58,7 @@ type DockerNode struct {
 	Command     []string
 	Commands    []string
 	Volumes     []string
+	ExtraHosts  []string
 	Net         string
 	Vargs       map[string]interface{}
 }
@@ -72,6 +73,7 @@ func newDockerNode(typ NodeType, c yaml.Container) *DockerNode {
 		Entrypoint:  c.Entrypoint.Slice(),
 		Command:     c.Command.Slice(),
 		Volumes:     c.Volumes,
+		ExtraHosts:  c.ExtraHosts,
 		Net:         c.Net,
 	}
 }
