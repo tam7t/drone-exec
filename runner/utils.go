@@ -76,10 +76,12 @@ func toEnv(s *State) []string {
 	envs = append(envs, fmt.Sprintf("DRONE_BUILD_DIR=%s", s.Workspace.Path))
 	envs = append(envs, fmt.Sprintf("DRONE_BRANCH=%s", s.Build.Branch))
 	envs = append(envs, fmt.Sprintf("DRONE_COMMIT=%s", s.Build.Commit))
+	envs = append(envs, fmt.Sprintf("DRONE_EVENT=%s", s.Build.Event))
 	envs = append(envs, fmt.Sprintf("CI_BRANCH=%s", s.Build.Branch))
 	envs = append(envs, fmt.Sprintf("CI_BUILD_DIR=%s", s.Workspace.Path))
 	envs = append(envs, fmt.Sprintf("CI_BUILD_NUMBER=%d", s.Build.Number))
 	envs = append(envs, fmt.Sprintf("CI_COMMIT=%s", s.Build.Commit))
+	envs = append(envs, fmt.Sprintf("CI_EVENT=%s", s.Build.Event))
 
 	envs = append(envs, fmt.Sprintf("CI_BUILD_URL=%s/%s/%d", s.System.Link, s.Repo.FullName, s.Build.Number))
 
