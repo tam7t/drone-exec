@@ -7,6 +7,8 @@ import (
 
 	"github.com/drone/drone-exec/parser"
 	"github.com/drone/drone-plugin-go/plugin"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 // isMatch is a helper function that returns true if
@@ -20,12 +22,16 @@ func isMatch(node *parser.FilterNode, s *State) (match bool) {
 
 	switch {
 	case !matchBranch(node.Branch, s.Build.Branch):
+		log.Debugf("skipping step, wanted branch %v, got %v", node.Branch, s.Build.Branch)
 		return false
 	case !matchMatrix(node.Matrix, s.Job.Environment):
+		log.Debugf("skipping step, wanted matrix %v, got %v", node.Matrix, s.Job.Environment)
 		return false
 	case !matchRepo(node.Repo, s.Repo.FullName):
+		log.Debugf("skipping step, wanted repository %v, got %v", node.Repo, s.Repo.FullName)
 		return false
 	case !matchEvent(node.Event, s.Build.Event):
+		log.Debugf("skipping step, wanted event %v, got %v", node.Event, s.Build.Event)
 		return false
 	}
 
@@ -37,6 +43,7 @@ func isMatch(node *parser.FilterNode, s *State) (match bool) {
 	case matchChange(node.Change, s.Job.Status, last):
 		return true
 	}
+	log.Debugln("skipping step, did not match the expected status")
 
 	return false
 }
