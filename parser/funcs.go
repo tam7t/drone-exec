@@ -225,6 +225,26 @@ func CacheFunc(dir string) RuleFunc {
 	}
 }
 
+// Debug transforms plugin Nodes to set the DEBUG environment
+// variable when starting plugins.
+func Debug(n Node, debug bool) error {
+	d, ok := n.(*DockerNode)
+	if !ok {
+		return nil
+	}
+	switch d.NodeType {
+	case NodeCache, NodeClone, NodeDeploy, NodeNotify, NodePublish:
+		d.Environment = append(d.Environment, "DEBUG=true")
+	}
+	return nil
+}
+
+func DebugFunc(debug bool) RuleFunc {
+	return func(n Node) error {
+		return Debug(n, debug)
+	}
+}
+
 func Mount(n Node, from, to string) error {
 	d, ok := n.(*DockerNode)
 	if !ok {

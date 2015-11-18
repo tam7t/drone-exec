@@ -70,7 +70,8 @@ func main() {
 
 	// configure the default log format and
 	// log levels
-	if yaml.ParseDebugString(payload.Yaml) {
+	debugFlag := yaml.ParseDebugString(payload.Yaml)
+	if debugFlag {
 		log.SetLevel(log.DebugLevel)
 	}
 	log.SetFormatter(new(formatter))
@@ -123,7 +124,7 @@ func main() {
 	// injects the matrix configuration parameters
 	// into the yaml prior to parsing.
 	injectParams := map[string]string{
-		"COMMIT_SHORT": payload.Build.Commit[:7],
+		"COMMIT_SHORT": payload.Build.Commit, // DEPRECATED
 		"COMMIT":       payload.Build.Commit,
 		"BRANCH":       payload.Build.Branch,
 		"BUILD_NUMBER": strconv.Itoa(payload.Build.Number),
@@ -159,6 +160,7 @@ func main() {
 		parser.ImagePullFunc(force),
 		parser.SanitizeFunc(payload.Repo.IsTrusted), //&& !plugin.PullRequest(payload.Build)
 		parser.CacheFunc(payload.Repo.FullName),
+		parser.DebugFunc(debugFlag),
 		parser.Escalate,
 		parser.HttpProxy,
 		parser.DefaultNotifyFilter,
@@ -251,7 +253,6 @@ func main() {
 			log.Debugln(err)
 		}
 	}
-
 	if deploy && !state.Failed() {
 		log.Debugln("Running Publish and Deploy steps")
 		err = r.RunNode(state, parser.NodePublish|parser.NodeDeploy)
