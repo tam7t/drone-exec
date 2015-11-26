@@ -25,6 +25,7 @@ type Container struct {
 	ExtraHosts  []string `yaml:"extra_hosts"`
 	Volumes     []string
 	Net         string
+	AuthConfig  AuthConfig `yaml:"auth_config"`
 }
 
 // Build is a typed representation of the build
@@ -33,6 +34,14 @@ type Build struct {
 	Container `yaml:",inline"`
 
 	Commands []string
+}
+
+// Auth for Docker Image Registry
+type AuthConfig struct {
+	Username      string `yaml:"username"`
+	Password      string `yaml:"password"`
+	Email         string `yaml:"email"`
+	RegistryToken string `yaml:"registry_token"`
 }
 
 // Plugin is a typed representation of a

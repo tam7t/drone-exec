@@ -123,6 +123,10 @@ build:
     - /tmp/volumes
   net: bridge
   privileged: true
+  auth_config:
+    password: test
+    username: test
+    email: test@example.com
 
 compose:
   redis:

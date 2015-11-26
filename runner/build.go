@@ -55,6 +55,13 @@ func (b *Build) walk(node parser.Node, state *State) (err error) {
 		if len(node.Image) == 0 {
 			break
 		}
+		// auth for accessing private docker registries
+		auth := &dockerclient.AuthConfig{
+			Username:      node.AuthConfig.Username,
+			Password:      node.AuthConfig.Password,
+			Email:         node.AuthConfig.Email,
+			RegistryToken: node.AuthConfig.RegistryToken,
+		}
 
 		switch node.Type() {
 
@@ -88,7 +95,7 @@ func (b *Build) walk(node parser.Node, state *State) (err error) {
 				script.Encode(nil, conf, node)
 			}
 
-			info, err := docker.Run(state.Client, conf, node.Pull)
+			info, err := docker.Run(state.Client, conf, auth, node.Pull)
 			if err != nil {
 				state.Exit(255)
 			} else if info.State.ExitCode != 0 {
@@ -97,7 +104,7 @@ func (b *Build) walk(node parser.Node, state *State) (err error) {
 
 		case parser.NodeCompose:
 			conf := toContainerConfig(node)
-			_, err := docker.Start(state.Client, conf, node.Pull)
+			_, err := docker.Start(state.Client, conf, auth, node.Pull)
 			if err != nil {
 				state.Exit(255)
 			}
@@ -105,7 +112,7 @@ func (b *Build) walk(node parser.Node, state *State) (err error) {
 		default:
 			conf := toContainerConfig(node)
 			conf.Cmd = toCommand(state, node)
-			info, err := docker.Run(state.Client, conf, node.Pull)
+			info, err := docker.Run(state.Client, conf, auth, node.Pull)
 			if err != nil {
 				state.Exit(255)
 			} else if info.State.ExitCode != 0 {
