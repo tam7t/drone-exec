@@ -144,7 +144,11 @@ func main() {
 		}
 		globals[parts[0]] = parts[1]
 	}
-	payload.Yaml, _ = inject.InjectSafe(payload.Yaml, globals)
+	if payload.Repo.Private {
+		payload.Yaml = inject.Inject(payload.Yaml, globals)
+	} else {
+		payload.Yaml, _ = inject.InjectSafe(payload.Yaml, globals)
+	}
 
 	// extracts the clone path from the yaml. If
 	// the clone path doesn't exist it uses a path
