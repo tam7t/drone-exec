@@ -144,7 +144,7 @@ func main() {
 		}
 		globals[parts[0]] = parts[1]
 	}
-	if payload.Repo.Private {
+	if payload.Repo.IsPrivate {
 		payload.Yaml = inject.Inject(payload.Yaml, globals)
 	} else {
 		payload.Yaml, _ = inject.InjectSafe(payload.Yaml, globals)
