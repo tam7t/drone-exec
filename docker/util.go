@@ -2,6 +2,7 @@ package docker
 
 import (
 	"errors"
+	"io"
 	"os"
 	// "strings"
 
@@ -30,7 +31,13 @@ var (
 	}
 )
 
-func Run(client dockerclient.Client, conf *dockerclient.ContainerConfig, auth *dockerclient.AuthConfig, pull bool) (*dockerclient.ContainerInfo, error) {
+func Run(client dockerclient.Client, conf *dockerclient.ContainerConfig, auth *dockerclient.AuthConfig, pull bool, outw, errw io.Writer) (*dockerclient.ContainerInfo, error) {
+	if outw == nil {
+		outw = os.Stdout
+	}
+	if errw == nil {
+		errw = os.Stdout
+	}
 
 	// fetches the container information.
 	info, err := Start(client, conf, auth, pull)
@@ -61,7 +68,7 @@ func Run(client dockerclient.Client, conf *dockerclient.ContainerConfig, auth *d
 			return
 		}
 		defer rc.Close()
-		StdCopy(os.Stdout, os.Stdout, rc)
+		StdCopy(outw, errw, rc)
 
 		// fetches the container information
 		info, err := client.InspectContainer(info.Id)
