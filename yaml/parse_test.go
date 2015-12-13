@@ -96,12 +96,24 @@ func TestParse(t *testing.T) {
 			g.Assert(s[1].Filter.Matrix).Equal(map[string]string{"go_version": "1.5"})
 		})
 
-		g.It("should error when Yaml is malformed", func() {
+		g.It("Should error when Yaml is malformed", func() {
 			_, err := ParseString(malformed)
 			g.Assert(err.Error()).Equal("yaml: found unexpected ':'")
 		})
-	})
 
+		g.It("Should parse a Yaml with variables", func() {
+			varConf, err := ParseString(variables)
+			g.Assert(err).Equal(nil)
+			g.Assert(varConf.Build.Image).Equal("golang")
+			g.Assert(varConf.Build.Environment.Slice()).Equal(
+				[]string{"GO15VENDOREXPERIMENT=1"},
+			)
+			g.Assert(varConf.Build.Commands).Equal([]string{"go build", "go test"})
+			g.Assert(varConf.Build.Volumes).Equal([]string{"/tmp/volumes"})
+			g.Assert(varConf.Build.Net).Equal("bridge")
+			g.Assert(varConf.Build.Privileged).Equal(true)
+		})
+	})
 }
 
 var sample = `
@@ -150,3 +162,20 @@ deploy:
 `
 
 var malformed = `build: { image: golang:1.4.2, commands: [ go build, go test ] }`
+
+var variables = `
+build_values: &BUILD_VALUES
+  image: golang
+  environment:
+    - GO15VENDOREXPERIMENT=1
+  commands:
+    - go build
+    - go test
+  volumes:
+    - /tmp/volumes
+  net: bridge
+
+build:
+  <<: *BUILD_VALUES
+  privileged: true
+`
