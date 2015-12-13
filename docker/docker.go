@@ -12,7 +12,6 @@ type Client struct {
 }
 
 func NewClient(docker dockerclient.Client) (*Client, error) {
-
 	// creates an ambassador container
 	conf := &dockerclient.ContainerConfig{}
 	conf.HostConfig = dockerclient.HostConfig{
@@ -23,7 +22,7 @@ func NewClient(docker dockerclient.Client) (*Client, error) {
 	conf.Image = "gliderlabs/alpine:3.1"
 	conf.Volumes = map[string]struct{}{}
 	conf.Volumes["/drone"] = struct{}{}
-	info, err := Start(docker, conf, false)
+	info, err := Start(docker, conf, nil, false)
 	if err != nil {
 		return nil, err
 	}
@@ -33,9 +32,9 @@ func NewClient(docker dockerclient.Client) (*Client, error) {
 
 // CreateContainer creates a container and internally
 // caches its container id.
-func (c *Client) CreateContainer(conf *dockerclient.ContainerConfig, name string) (string, error) {
+func (c *Client) CreateContainer(conf *dockerclient.ContainerConfig, name string, auth *dockerclient.AuthConfig) (string, error) {
 	conf.Env = append(conf.Env, "affinity:container=="+c.info.Id)
-	id, err := c.Client.CreateContainer(conf, name)
+	id, err := c.Client.CreateContainer(conf, name, auth)
 	if err == nil {
 		c.names = append(c.names, id)
 	}

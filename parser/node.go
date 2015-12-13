@@ -60,6 +60,7 @@ type DockerNode struct {
 	Volumes     []string
 	ExtraHosts  []string
 	Net         string
+	AuthConfig  yaml.AuthConfig
 	Vargs       map[string]interface{}
 }
 
@@ -75,6 +76,7 @@ func newDockerNode(typ NodeType, c yaml.Container) *DockerNode {
 		Volumes:     c.Volumes,
 		ExtraHosts:  c.ExtraHosts,
 		Net:         c.Net,
+		AuthConfig:  c.AuthConfig,
 	}
 }
 
