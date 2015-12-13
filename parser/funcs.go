@@ -250,10 +250,8 @@ func Mount(n Node, from, to string) error {
 	if !ok {
 		return nil
 	}
-	if d.NodeType == NodeBuild {
-		dir := fmt.Sprintf("%s:%s", from, to)
-		d.Volumes = []string{dir}
-	}
+	dir := fmt.Sprintf("%s:%s", from, to)
+	d.Volumes = append(d.Volumes, dir)
 	return nil
 }
 
