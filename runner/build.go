@@ -56,13 +56,16 @@ func (b *Build) walk(node parser.Node, state *State) (err error) {
 			break
 		}
 		// auth for accessing private docker registries
-		auth := &dockerclient.AuthConfig{
-			Username:      node.AuthConfig.Username,
-			Password:      node.AuthConfig.Password,
-			Email:         node.AuthConfig.Email,
-			RegistryToken: node.AuthConfig.RegistryToken,
+		var auth *dockerclient.AuthConfig
+		// auth to nil if password or token not set
+		if len(node.AuthConfig.Password) != 0 || len(node.AuthConfig.RegistryToken) != 0 {
+			auth = &dockerclient.AuthConfig{
+				Username:      node.AuthConfig.Username,
+				Password:      node.AuthConfig.Password,
+				Email:         node.AuthConfig.Email,
+				RegistryToken: node.AuthConfig.RegistryToken,
+			}
 		}
-
 		switch node.Type() {
 
 		case parser.NodeBuild:
