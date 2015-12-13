@@ -30,7 +30,9 @@ func main() {
 	// unmarshal the json payload via stdin or
 	// via the command line args (whichever was used)
 	var payload exec.Payload
-	plugin.MustUnmarshal(&payload)
+	if err := plugin.MustUnmarshal(&payload); err != nil {
+		log.Fatalln(err)
+	}
 
 	// configure the default log format and
 	// log levels
@@ -42,6 +44,7 @@ func main() {
 
 	err := exec.Exec(payload, opt, os.Stdout, os.Stdout)
 	if err != nil {
+		log.Println(err)
 		switch err := err.(type) {
 		case *exec.Error:
 			os.Exit(err.ExitCode)
