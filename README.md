@@ -51,7 +51,7 @@ Use the following commands to build the Docker image:
 
 ```sh
 # compile the binary for the correct architecture
-env GOOS=linux GOARCH=amd64 go build
+GOOS=linux GOARCH=amd64 CGO_ENABLED=0 GO15VENDOREXPERIMENT=1 go build
 
 # build the docker image, adding the above binary
 docker build --rm=true -t drone/drone-exec .
@@ -65,4 +65,3 @@ Using the `vexp` utility to vendor dependencies:
 go get https://github.com/kr/vexp
 ./vexp
 ```
-
