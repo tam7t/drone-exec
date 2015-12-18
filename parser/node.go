@@ -53,6 +53,7 @@ type DockerNode struct {
 	Image       string
 	Pull        bool
 	Privileged  bool
+	DisableAptConfig bool
 	Environment []string
 	Entrypoint  []string
 	Command     []string
@@ -70,6 +71,7 @@ func newDockerNode(typ NodeType, c yaml.Container) *DockerNode {
 		Image:       c.Image,
 		Pull:        c.Pull,
 		Privileged:  c.Privileged,
+		DisableAptConfig: c.DisableAptConfig,
 		Environment: c.Environment.Slice(),
 		Entrypoint:  c.Entrypoint.Slice(),
 		Command:     c.Command.Slice(),

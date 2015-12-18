@@ -91,7 +91,6 @@ func (b *Build) walk(node parser.Node, state *State) (err error) {
 			conf := toContainerConfig(node)
 			conf.Env = append(conf.Env, toEnv(state)...)
 			conf.WorkingDir = state.Workspace.Path
-			// conf.User = "root"
 			if state.Repo.IsPrivate {
 				script.Encode(state.Workspace, conf, node)
 			} else {

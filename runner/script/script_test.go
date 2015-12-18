@@ -49,6 +49,20 @@ func Test_Rule(t *testing.T) {
 			g.Assert(c.Entrypoint).Equal(entrypoint)
 			g.Assert(want).Equal(got)
 		})
+
+		g.It("Should encode the build script without configuring apt", func() {
+			c := &dockerclient.ContainerConfig{}
+			n := &parser.DockerNode{
+				Commands:         []string{"go build", "go test"},
+				DisableAptConfig: true,
+			}
+			Encode(nil, c, n)
+			want := encode(decoded3)
+			got := c.Cmd[0]
+
+			g.Assert(c.Entrypoint).Equal(entrypoint)
+			g.Assert(want).Equal(got)
+		})
 	})
 }
 
@@ -108,6 +122,26 @@ login bar
 password baz
 EOF
 chmod 0600 $HOME/.netrc
+
+echo JCBnbyBidWlsZAo= | base64 -d
+go build
+
+echo JCBnbyB0ZXN0Cg== | base64 -d
+go test
+
+rm -rf $HOME/.netrc
+rm -rf $HOME/.ssh/id_rsa
+`)
+
+var decoded3 = []byte(`
+[ -z "$HOME"  ] && export HOME="/root"
+[ -z "$SHELL" ] && export SHELL="/bin/sh"
+
+export GOBIN=/drone/bin
+export GOPATH=/drone
+export PATH=$PATH:$GOBIN
+
+set -e
 
 echo JCBnbyBidWlsZAo= | base64 -d
 go build

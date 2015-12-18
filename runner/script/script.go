@@ -15,7 +15,10 @@ import (
 func Encode(w *plugin.Workspace, c *dockerclient.ContainerConfig, n *parser.DockerNode) {
 	var buf bytes.Buffer
 	buf.WriteString(setupScript)
-	buf.WriteString(forceYesScript)
+
+	if !n.DisableAptConfig {
+		buf.WriteString(forceYesScript)
+	}
 
 	if w != nil && w.Keys != nil && w.Netrc != nil {
 		buf.WriteString(writeKey(

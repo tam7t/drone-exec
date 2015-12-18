@@ -33,6 +33,10 @@ func TestParse(t *testing.T) {
 			g.Assert(conf.Build.Image).Equal("golang")
 		})
 
+		g.It("Should parse disable_apt_config", func() {
+			g.Assert(conf.Build.DisableAptConfig).Equal(true)
+		})
+
 		g.It("Should parse build commands", func() {
 			g.Assert(conf.Build.Commands).Equal([]string{"go build", "go test"})
 		})
@@ -135,6 +139,7 @@ build:
     - /tmp/volumes
   net: bridge
   privileged: true
+  disable_apt_config: true
   auth_config:
     password: test
     username: test

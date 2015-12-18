@@ -16,16 +16,17 @@ type Config struct {
 // Container is a typed representation of a
 // docker step in the Yaml configuration file.
 type Container struct {
-	Image       string
-	Pull        bool
-	Privileged  bool
-	Environment MapEqualSlice
-	Entrypoint  Command
-	Command     Command
-	ExtraHosts  []string `yaml:"extra_hosts"`
-	Volumes     []string
-	Net         string
-	AuthConfig  AuthConfig `yaml:"auth_config"`
+	Image            string
+	Pull             bool
+	Privileged       bool
+	DisableAptConfig bool `yaml:"disable_apt_config"`
+	Environment      MapEqualSlice
+	Entrypoint       Command
+	Command          Command
+	ExtraHosts       []string `yaml:"extra_hosts"`
+	Volumes          []string
+	Net              string
+	AuthConfig       AuthConfig `yaml:"auth_config"`
 }
 
 // Build is a typed representation of the build
