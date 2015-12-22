@@ -52,7 +52,7 @@ func Load(conf *yaml.Config, rules []RuleFunc) (*Tree, error) {
 	}
 
 	// Build
-	err = tree.appendBuild(conf.Build)
+	err = tree.appendBuild(conf.Build.Slice())
 	if err != nil {
 		return nil, err
 	}
@@ -102,15 +102,17 @@ func (t *Tree) appendPlugin(typ NodeType, plugins ...yaml.Plugin) error {
 	return nil
 }
 
-func (t *Tree) appendBuild(build yaml.Build) error {
-	node := newBuildNode(NodeBuild, build)
-	for _, rule := range t.rules {
-		err := rule(node)
-		if err != nil {
-			return err
+func (t *Tree) appendBuild(builds []yaml.Build) error {
+	for _, build := range builds {
+		node := newBuildNode(NodeBuild, build)
+		for _, rule := range t.rules {
+			err := rule(node)
+			if err != nil {
+				return err
+			}
 		}
+		t.Root.append(node)
 	}
-	t.Root.append(node)
 	return nil
 }
 

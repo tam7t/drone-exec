@@ -5,7 +5,7 @@ package yaml
 type Config struct {
 	Cache Plugin
 	Clone Plugin
-	Build Build
+	Build Buildslice
 
 	Compose Containerslice
 	Publish Pluginslice

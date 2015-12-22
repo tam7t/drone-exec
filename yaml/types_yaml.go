@@ -181,6 +181,48 @@ func (s *Containerslice) Slice() []Container {
 	return s.parts
 }
 
+// Buildslice is a slice of Build Containers with a custom
+// Yaml unarmshal function to preserve ordering.
+type Buildslice struct {
+	parts []Build
+}
+
+func (s *Buildslice) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	build := Build{}
+	err := unmarshal(&build)
+	if err != nil {
+		return err
+	}
+	if len(build.Image) != 0 {
+		s.parts = append(s.parts, build)
+		return nil
+	}
+
+	// unmarshal the yaml into the generic
+	// mapSlice type to preserve ordering.
+	obj := yaml.MapSlice{}
+	if err := unmarshal(&obj); err != nil {
+		return err
+	}
+
+	// unarmshals each item in the mapSlice,
+	// unmarshal and append to the slice.
+	return unmarshalYaml(obj, func(key string, val []byte) error {
+		build := Build{}
+		err := yaml.Unmarshal(val, &build)
+		s.parts = append(s.parts, build)
+		return err
+	})
+}
+
+func (s *Buildslice) Slice() []Build {
+	return s.parts
+}
+
+func (s *Buildslice) First() Build {
+	return s.parts[0]
+}
+
 // emitter defines the callback function used for
 // generic yaml parsing. It emits back a raw byte
 // slice for custom unmarshalling into a structure.

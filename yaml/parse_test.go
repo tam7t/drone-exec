@@ -30,19 +30,19 @@ func TestParse(t *testing.T) {
 		})
 
 		g.It("Should parse build image", func() {
-			g.Assert(conf.Build.Image).Equal("golang")
+			g.Assert(conf.Build.Slice()[0].Image).Equal("golang")
 		})
 
 		g.It("Should parse build commands", func() {
-			g.Assert(conf.Build.Commands).Equal([]string{"go build", "go test"})
+			g.Assert(conf.Build.Slice()[0].Commands).Equal([]string{"go build", "go test"})
 		})
 
 		g.It("Should parse volume configuration", func() {
-			g.Assert(conf.Build.Volumes).Equal([]string{"/tmp/volumes"})
+			g.Assert(conf.Build.Slice()[0].Volumes).Equal([]string{"/tmp/volumes"})
 		})
 
 		g.It("Should parse network configuration", func() {
-			g.Assert(conf.Build.Net).Equal("bridge")
+			g.Assert(conf.Build.Slice()[0].Net).Equal("bridge")
 		})
 
 		g.It("Should parse environment variable map", func() {
@@ -52,7 +52,7 @@ func TestParse(t *testing.T) {
 		})
 
 		g.It("Should parse environment variable slice", func() {
-			g.Assert(conf.Build.Environment.Slice()).Equal(
+			g.Assert(conf.Build.Slice()[0].Environment.Slice()).Equal(
 				[]string{"GO15VENDOREXPERIMENT=1"},
 			)
 		})
@@ -102,16 +102,29 @@ func TestParse(t *testing.T) {
 		})
 
 		g.It("Should parse a Yaml with variables", func() {
-			varConf, err := ParseString(variables)
+			conf, err := ParseString(variables)
 			g.Assert(err).Equal(nil)
-			g.Assert(varConf.Build.Image).Equal("golang")
-			g.Assert(varConf.Build.Environment.Slice()).Equal(
+			g.Assert(conf.Build.Slice()[0].Image).Equal("golang")
+			g.Assert(conf.Build.Slice()[0].Environment.Slice()).Equal(
 				[]string{"GO15VENDOREXPERIMENT=1"},
 			)
-			g.Assert(varConf.Build.Commands).Equal([]string{"go build", "go test"})
-			g.Assert(varConf.Build.Volumes).Equal([]string{"/tmp/volumes"})
-			g.Assert(varConf.Build.Net).Equal("bridge")
-			g.Assert(varConf.Build.Privileged).Equal(true)
+			g.Assert(conf.Build.Slice()[0].Commands).Equal([]string{"go build", "go test"})
+			g.Assert(conf.Build.Slice()[0].Volumes).Equal([]string{"/tmp/volumes"})
+			g.Assert(conf.Build.Slice()[0].Net).Equal("bridge")
+			g.Assert(conf.Build.Slice()[0].Privileged).Equal(true)
+		})
+
+		g.It("Should parse a Yaml with multiple build steps", func() {
+			conf, err := ParseString(multiBuild)
+			g.Assert(err).Equal(nil)
+			g.Assert(conf.Build.Slice()[0].Image).Equal("golang")
+			g.Assert(conf.Build.Slice()[0].Environment.Slice()).Equal(
+				[]string{"GO15VENDOREXPERIMENT=1"},
+			)
+			g.Assert(conf.Build.Slice()[0].Commands).Equal([]string{"go build", "go test"})
+
+			g.Assert(conf.Build.Slice()[1].Image).Equal("node")
+			g.Assert(conf.Build.Slice()[1].Commands).Equal([]string{"npm install", "npm test"})
 		})
 	})
 }
@@ -163,6 +176,22 @@ deploy:
       branch: somebranch
       matrix:
         go_version: 1.5
+`
+
+var multiBuild = `
+build:
+  backend:
+    image: golang
+    environment:
+      - GO15VENDOREXPERIMENT=1
+    commands:
+      - go build
+      - go test
+  frontent:
+    image: node
+    commands:
+      - npm install
+      - npm test
 `
 
 var malformed = `build: { image: golang:1.4.2, commands: [ go build, go test ] }`
