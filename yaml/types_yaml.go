@@ -181,13 +181,13 @@ func (s *Containerslice) Slice() []Container {
 	return s.parts
 }
 
-// Buildslice is a slice of Build Containers with a custom
+// BuildStep holds the build step configuration using a custom
 // Yaml unarmshal function to preserve ordering.
-type Buildslice struct {
+type BuildStep struct {
 	parts []Build
 }
 
-func (s *Buildslice) UnmarshalYAML(unmarshal func(interface{}) error) error {
+func (s *BuildStep) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	build := Build{}
 	err := unmarshal(&build)
 	if err != nil {
@@ -215,12 +215,8 @@ func (s *Buildslice) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	})
 }
 
-func (s *Buildslice) Slice() []Build {
+func (s *BuildStep) Slice() []Build {
 	return s.parts
-}
-
-func (s *Buildslice) First() Build {
-	return s.parts[0]
 }
 
 // emitter defines the callback function used for
