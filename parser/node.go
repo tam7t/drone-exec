@@ -109,15 +109,15 @@ type FilterNode struct {
 	Node Node // Node to execution if conditions met
 }
 
-func newFilterNode(p yaml.Plugin) *FilterNode {
+func newFilterNode(filter yaml.Filter) *FilterNode {
 	return &FilterNode{
 		NodeType: NodeFilter,
-		Repo:     p.Filter.Repo,
-		Branch:   p.Filter.Branch.Slice(),
-		Event:    p.Filter.Event.Slice(),
-		Matrix:   p.Filter.Matrix,
-		Success:  p.Filter.Success,
-		Failure:  p.Filter.Failure,
-		Change:   p.Filter.Change,
+		Repo:     filter.Repo,
+		Branch:   filter.Branch.Slice(),
+		Event:    filter.Event.Slice(),
+		Matrix:   filter.Matrix,
+		Success:  filter.Success,
+		Failure:  filter.Failure,
+		Change:   filter.Change,
 	}
 }

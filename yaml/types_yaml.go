@@ -193,7 +193,7 @@ func (s *BuildStep) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	if err != nil {
 		return err
 	}
-	if len(build.Image) != 0 {
+	if build.Image != "" {
 		s.parts = append(s.parts, build)
 		return nil
 	}
@@ -210,8 +210,11 @@ func (s *BuildStep) UnmarshalYAML(unmarshal func(interface{}) error) error {
 	return unmarshalYaml(obj, func(key string, val []byte) error {
 		build := Build{}
 		err := yaml.Unmarshal(val, &build)
+		if err != nil {
+			return err
+		}
 		s.parts = append(s.parts, build)
-		return err
+		return nil
 	})
 }
 
