@@ -5,7 +5,7 @@ package yaml
 type Config struct {
 	Cache Plugin
 	Clone Plugin
-	Build Build
+	Build BuildStep
 
 	Compose Containerslice
 	Publish Pluginslice
@@ -34,6 +34,7 @@ type Build struct {
 	Container `yaml:",inline"`
 
 	Commands []string
+	Filter   Filter `yaml:"when"`
 }
 
 // Auth for Docker Image Registry

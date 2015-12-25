@@ -181,6 +181,47 @@ func (s *Containerslice) Slice() []Container {
 	return s.parts
 }
 
+// BuildStep holds the build step configuration using a custom
+// Yaml unarmshal function to preserve ordering.
+type BuildStep struct {
+	parts []Build
+}
+
+func (s *BuildStep) UnmarshalYAML(unmarshal func(interface{}) error) error {
+	build := Build{}
+	err := unmarshal(&build)
+	if err != nil {
+		return err
+	}
+	if build.Image != "" {
+		s.parts = append(s.parts, build)
+		return nil
+	}
+
+	// unmarshal the yaml into the generic
+	// mapSlice type to preserve ordering.
+	obj := yaml.MapSlice{}
+	if err := unmarshal(&obj); err != nil {
+		return err
+	}
+
+	// unarmshals each item in the mapSlice,
+	// unmarshal and append to the slice.
+	return unmarshalYaml(obj, func(key string, val []byte) error {
+		build := Build{}
+		err := yaml.Unmarshal(val, &build)
+		if err != nil {
+			return err
+		}
+		s.parts = append(s.parts, build)
+		return nil
+	})
+}
+
+func (s *BuildStep) Slice() []Build {
+	return s.parts
+}
+
 // emitter defines the callback function used for
 // generic yaml parsing. It emits back a raw byte
 // slice for custom unmarshalling into a structure.

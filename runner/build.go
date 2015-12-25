@@ -69,29 +69,16 @@ func (b *Build) walk(node parser.Node, state *State) (err error) {
 		switch node.Type() {
 
 		case parser.NodeBuild:
-			// run setup
-			// node.Vargs = map[string]interface{}{}
-			// node.Vargs["commands"] = node.Commands
-
-			// conf := toContainerConfig(node)
-			// conf.Cmd = toCommand(state, node)
-			// conf.Image = "plugins/drone-build"
-			// info, err := docker.Run(state.Client, conf, node.Pull)
-			// if err != nil {
-			// 	state.Exit(255)
-			// } else if info.State.ExitCode != 0 {
-			// 	state.Exit(info.State.ExitCode)
-			// }
-
-			// run build
-			// conf := toContainerConfig(node)
-			// conf.Entrypoint = []string{"/bin/sh", "-e"}
-			// conf.Cmd = []string{"/drone/bin/build.sh"}
+			// TODO(bradrydzewski) this should be handled by the when block
+			// by defaulting the build steps to run when not failure. This is
+			// required now that we support multi-build steps.
+			if state.Failed() {
+				return
+			}
 
 			conf := toContainerConfig(node)
 			conf.Env = append(conf.Env, toEnv(state)...)
 			conf.WorkingDir = state.Workspace.Path
-			// conf.User = "root"
 			if state.Repo.IsPrivate {
 				script.Encode(state.Workspace, conf, node)
 			} else {
