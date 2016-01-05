@@ -1,30 +1,15 @@
 package runner
 
 import (
-	"errors"
-
-	// log "github.com/Sirupsen/logrus"
 	"github.com/drone/drone-exec/docker"
 	"github.com/drone/drone-exec/parser"
 	"github.com/drone/drone-exec/runner/script"
 	"github.com/samalba/dockerclient"
 )
 
-var ErrNoImage = errors.New("Yaml must specify an image for every step")
-
-// Default clone plugin.
-const DefaultCloner = "plugins/drone-git"
-
-// Default cache plugin.
-const DefaultCacher = "plugins/drone-cache"
-
 type Build struct {
 	tree  *parser.Tree
 	flags parser.NodeType
-}
-
-func (b *Build) Run(state *State) error {
-	return b.RunNode(state, 0)
 }
 
 func (b *Build) RunNode(state *State, flags parser.NodeType) error {
@@ -114,34 +99,9 @@ func (b *Build) walk(node parser.Node, state *State) (err error) {
 	return nil
 }
 
-func expectMatch() {
-
-}
-
-func maybeResolveImage() {}
-
-func maybeEscalate(conf dockerclient.ContainerConfig, node *parser.DockerNode) {
-	if node.Image == "plugins/drone-docker" || node.Image == "plugins/drone-gcr" {
-		return
-	}
-	conf.Volumes = nil
-	conf.HostConfig.NetworkMode = ""
-	conf.HostConfig.Privileged = true
-	conf.Entrypoint = []string{}
-	conf.Cmd = []string{}
-}
-
 // shouldSkip is a helper function that returns true if
 // node execution should be skipped. This happens when
 // the build is executed for a subset of build steps.
 func shouldSkip(flags parser.NodeType, nodeType parser.NodeType) bool {
 	return flags != 0 && flags&nodeType == 0
-}
-
-// shouldEscalate is a helper function that returns true
-// if the plugin should be escalated to start the container
-// in privileged mode.
-func shouldEscalate(node *parser.DockerNode) bool {
-	return node.Image == "plugins/drone-docker" ||
-		node.Image == "plugins/drone-gcr"
 }
