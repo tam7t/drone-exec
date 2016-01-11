@@ -29,6 +29,10 @@ func TestParse(t *testing.T) {
 			g.Assert(conf.Clone.Vargs["path"]).Equal("github.com/octocat/hello-world")
 		})
 
+		g.It("Should parse image user", func() {
+			g.Assert(conf.Clone.User).Equal("500")
+		})
+
 		g.It("Should parse build image", func() {
 			g.Assert(conf.Build.Slice()[0].Image).Equal("golang")
 		})
@@ -133,6 +137,7 @@ var sample = `
 clone:
   image: git
   pull: true
+  user: 500
   path: github.com/octocat/hello-world
   environment:
     GIT_DIR: .git

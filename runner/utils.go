@@ -31,6 +31,10 @@ func toContainerConfig(n *parser.DockerNode) *dockerclient.ContainerConfig {
 		},
 	}
 
+	if len(n.User) > 0 {
+		config.User = n.User
+	}
+
 	if len(n.ExtraHosts) > 0 {
 		config.HostConfig.ExtraHosts = n.ExtraHosts
 	}

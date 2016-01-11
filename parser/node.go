@@ -51,6 +51,7 @@ type DockerNode struct {
 	NodeType
 
 	Image       string
+	User        string
 	Pull        bool
 	Privileged  bool
 	Environment []string
@@ -68,6 +69,7 @@ func newDockerNode(typ NodeType, c yaml.Container) *DockerNode {
 	return &DockerNode{
 		NodeType:    typ,
 		Image:       c.Image,
+		User:        c.User,
 		Pull:        c.Pull,
 		Privileged:  c.Privileged,
 		Environment: c.Environment.Slice(),

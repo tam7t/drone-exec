@@ -17,6 +17,7 @@ type Config struct {
 // docker step in the Yaml configuration file.
 type Container struct {
 	Image       string
+	User        string
 	Pull        bool
 	Privileged  bool
 	Environment MapEqualSlice
